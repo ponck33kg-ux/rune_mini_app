@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>FAQ — Bestie Bot</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, 'Segoe UI', sans-serif;
+    background: #1a1025;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 40px;
+  }
+
+  .bg-glow {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 350px;
+    background: radial-gradient(ellipse 80% 200px at 50% 0%, rgba(155,79,160,0.5) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .page {
+    width: 100%;
+    max-width: 390px;
+    padding: 0 16px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .header {
+    display: flex;
+    align-items: center;
+    padding: 16px 0 8px;
+  }
+  .back-btn {
+    width: 40px;
+    height: 40px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: white;
+    font-size: 18px;
+    -webkit-tap-highlight-color: transparent;
+    flex-shrink: 0;
+  }
+  .back-btn:active { background: rgba(255,255,255,0.2); }
+
+  .header-title {
+    flex: 1;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: white;
+  }
+  .header-spacer { width: 40px; }
+
+  .section-label {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+    margin: 20px 0 8px;
+  }
+
+  .accordion {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+
+  .acc-item {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 14px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .acc-item.open {
+    border-color: rgba(232,97,154,0.4);
+  }
+
+  .acc-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    gap: 12px;
+  }
+
+  .acc-question {
+    font-size: 14px;
+    font-weight: 700;
+    color: white;
+    line-height: 1.4;
+  }
+
+  .acc-arrow {
+    width: 24px;
+    height: 24px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 11px;
+    color: rgba(255,255,255,0.6);
+    transition: transform 0.25s, background 0.2s;
+  }
+  .acc-item.open .acc-arrow {
+    transform: rotate(180deg);
+    background: rgba(232,97,154,0.3);
+    color: white;
+  }
+
+  .acc-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+  }
+  .acc-item.open .acc-body {
+    max-height: 5000px;
+  }
+
+  .acc-answer {
+    padding: 0 16px 16px;
+    font-size: 13px;
+    color: rgba(255,255,255,0.75);
+    line-height: 1.7;
+    border-top: 1px solid rgba(255,255,255,0.07);
+    padding-top: 12px;
+  }
+
+  .acc-answer a {
+    color: #E8619A;
+    text-decoration: none;
+  }
+
+  /* Terms block */
+  .terms-acc {
+    margin-top: 24px;
+    margin-bottom: 8px;
+  }
+
+  .terms-body .acc-answer {
+    font-size: 12px;
+    color: rgba(255,255,255,0.55);
+    line-height: 1.8;
+  }
+
+  .terms-body .acc-answer h3 {
+    font-size: 12px;
+    font-weight: 800;
+    color: rgba(255,255,255,0.7);
+    margin: 14px 0 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .terms-body .acc-answer h3:first-child {
+    margin-top: 0;
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-glow"></div>
+
+<div class="page">
+
+  <div class="header">
+    <div class="back-btn" onclick="goBack()">‹</div>
+    <div class="header-title">FAQ</div>
+    <div class="header-spacer"></div>
+  </div>
+
+  <!-- О боте -->
+  <div class="section-label">О боте</div>
+  <div class="accordion">
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggle(this)">
+        <div class="acc-question">Что такое Bestie Bot?</div>
+        <div class="acc-arrow">▼</div>
+      </div>
+      <div class="acc-body">
+        <div class="acc-answer">
+          Bestie Bot — это бот безусловной поддержки. Здесь можно выговориться, поделиться переживаниями или просто поболтать — без осуждения и непрошеных советов.
+        </div>
+      </div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggle(this)">
+        <div class="acc-question">Это живой человек или AI?</div>
+        <div class="acc-arrow">▼</div>
+      </div>
+      <div class="acc-body">
+        <div class="acc-answer">
+          Наши подруги созданы на основе искусственного интеллекта, но за каждым персонажем стоит большая работа — реальные женщины участвовали в разработке характеров, помогали формировать стиль общения и эмоциональные реакции. Поэтому разговор ощущается живым и настоящим 🌸
+        </div>
+      </div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggle(this)">
+        <div class="acc-question">Мои сообщения кто-то читает?</div>
+        <div class="acc-arrow">▼</div>
+      </div>
+      <div class="acc-body">
+        <div class="acc-answer">
+          Твоя приватность для нас в приоритете. Сообщения обрабатываются автоматически и не передаются третьим лицам в привязке к твоей личности. Мы не идентифицируем пользователей по содержанию переписки — твои разговоры остаются только твоими.
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Персонажи -->
+  <div class="section-label">Персонажи</div>
+  <div class="accordion">
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggle(this)">
+        <div class="acc-question">Помнит ли подруга наши прошлые разговоры?</div>
+        <div class="acc-arrow">▼</div>
+      </div>
+      <div class="acc-body">
+        <div class="acc-answer">
+          Подруга помнит контекст текущего разговора. Однако после длительного перерыва память разговора обнуляется, и следующий диалог начинается с чистого листа. Это сделано намеренно — когда тебе нужно ты получишь немедленную и безусловную поддержку!
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Оплата -->
+  <div class="section-label">Оплата</div>
+  <div class="accordion">
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggle(this)">
+        <div class="acc-question">Сколько бесплатных сообщений в день?</div>
+        <div class="acc-arrow">▼</div>
+      </div>
+      <div class="acc-body">
+        <div class="acc-answer">
+          Каждый день тебе доступны 3 бесплатных сообщения.
+        </div>
+      </div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggle(this)">
+        <div class="acc-question">Когда обновляется дневной лимит?</div>
+        <div class="acc-arrow">▼</div>
+      </div>
+      <div class="acc-body">
+        <div class="acc-answer">
+          Каждый день в полночь по UTC+3.
+        </div>
+      </div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggle(this)">
+        <div class="acc-question">Как пополнить баланс?</div>
+        <div class="acc-arrow">▼</div>
+      </div>
+      <div class="acc-body">
+        <div class="acc-answer">
+          Через кнопку «Пополнить ⭐» в приложении. Оплата через Telegram Stars.
+        </div>
+      </div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggle(this)">
+        <div class="acc-question">Можно ли вернуть Stars?</div>
+        <div class="acc-arrow">▼</div>
+      </div>
+      <div class="acc-body">
+        <div class="acc-answer">
+          Нет. Все транзакции финальны — это политика Telegram Stars.
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Поддержка -->
+  <div class="section-label">Поддержка</div>
+  <div class="accordion">
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggle(this)">
+        <div class="acc-question">Что делать если бот не отвечает?</div>
+        <div class="acc-arrow">▼</div>
+      </div>
+      <div class="acc-body">
+        <div class="acc-answer">
+          Попробуй написать ещё раз через минуту. Если проблема сохраняется — обратись в поддержку.
+        </div>
+      </div>
+    </div>
+
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggle(this)">
+        <div class="acc-question">Как связаться с поддержкой?</div>
+        <div class="acc-arrow">▼</div>
+      </div>
+      <div class="acc-body">
+        <div class="acc-answer">
+          Напиши нам: <a href="https://t.me/BestieSupport_Bot">@BestieSupport_Bot</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Terms of Use -->
+  <div class="terms-acc">
+    <div class="accordion">
+      <div class="acc-item">
+        <div class="acc-header" onclick="toggle(this)">
+          <div class="acc-question" style="color: rgba(255,255,255,0.5); font-size: 12px; font-weight: 600; letter-spacing: 0.5px;">Условия использования</div>
+          <div class="acc-arrow">▼</div>
+        </div>
+        <div class="acc-body terms-body">
+          <div class="acc-answer">
+
+            <h3>1. Общие положения</h3>
+            Настоящие Условия использования регулируют доступ и использование Telegram-бота Bestie Bot (далее — «Сервис»), разработанного индивидуальным разработчиком (далее — «Разработчик»). Используя Сервис, вы подтверждаете что ознакомились с настоящими Условиями и соглашаетесь с ними. Если вы не согласны с Условиями — прекратите использование Сервиса.
+
+            <h3>2. Возрастные ограничения</h3>
+            Сервис предназначен исключительно для лиц 18 лет и старше. Используя Сервис, вы подтверждаете что достигли указанного возраста. Разработчик оставляет за собой право заблокировать доступ при нарушении данного требования.
+
+            <h3>3. Описание Сервиса</h3>
+            Bestie Bot — это Telegram-бот, предоставляющий эмоциональную поддержку и общение посредством AI-персонажей. Сервис не является психологической или психотерапевтической помощью, медицинской услугой или заменой профессиональной консультации специалиста. Все диалоги ведутся с искусственным интеллектом. Персонажи являются вымышленными.
+
+            <h3>4. Регистрация и доступ</h3>
+            Для использования Сервиса необходим аккаунт Telegram. Вы несёте ответственность за сохранность своего аккаунта и все действия совершённые через него.
+
+            <h3>5. Оплата и возвраты</h3>
+            Сервис использует Telegram Stars в качестве внутренней валюты для оплаты сообщений. Оплата осуществляется через платёжную систему Telegram. Все транзакции являются окончательными. Возврат Stars не предусмотрен после их использования. Неиспользованные сообщения не компенсируются при закрытии аккаунта. Разработчик не несёт ответственности за технические сбои на стороне Telegram.
+
+            <h3>6. Правила использования</h3>
+            При использовании Сервиса запрещается нарушать действующее законодательство, распространять противоправный контент, использовать Сервис для причинения вреда себе или другим, пытаться взломать или нарушить работу Сервиса, создавать множество аккаунтов для обхода ограничений.
+
+            <h3>7. Ограничение ответственности</h3>
+            Сервис предоставляется «как есть». Разработчик не гарантирует непрерывную и безошибочную работу Сервиса, точность и полноту ответов AI, сохранность истории диалогов при технических сбоях. Разработчик не несёт ответственности за любой ущерб возникший в результате использования или невозможности использования Сервиса.
+
+            <h3>8. Интеллектуальная собственность</h3>
+            Все элементы Сервиса включая персонажей, тексты и дизайн являются собственностью Разработчика и защищены авторским правом.
+
+            <h3>9. Изменение условий</h3>
+            Разработчик оставляет за собой право изменять настоящие Условия в любое время. Продолжение использования Сервиса после внесения изменений означает ваше согласие с новой редакцией.
+
+            <h3>10. Прекращение доступа</h3>
+            Разработчик оставляет за собой право заблокировать доступ к Сервису без объяснения причин, в том числе при нарушении настоящих Условий.
+
+            <h3>11. Контакты</h3>
+            По всем вопросам: <a href="https://t.me/BestieSupport_Bot">@BestieSupport_Bot</a>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const tg = window.Telegram?.WebApp;
+  if (tg) tg.ready();
+
+  function toggle(header) {
+    const item = header.parentElement;
+    const isOpen = item.classList.contains('open');
+    item.classList.toggle('open', !isOpen);
+  }
+
+  function goBack() {
+    if (tg) tg.close();
+    else window.history.back();
+  }
+</script>
+</body>
+</html>
