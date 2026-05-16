@@ -41,16 +41,22 @@
     z-index: 0;
   }
 
-  .helmet-layer {
-    position: fixed;
-    inset: 0;
-    background-image: url('https://ponck33kg-ux.github.io/rune_mini_app/helmet.png');
-    background-size: contain;
-    background-position: center top;
-    opacity: 0.3;
-    z-index: 1;
-    mix-blend-mode: luminosity;
-  }
+.helmet-layer {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 500px;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.helmet-layer img {
+  width: 100%;
+  opacity: 0.3;
+  mix-blend-mode: luminosity;
+}
 
   .fire-layer {
     position: fixed;
@@ -286,7 +292,9 @@
 
 <div class="page">
   <div class="bg-layer"></div>
-  <div class="helmet-layer"></div>
+  <div class="helmet-layer">
+  <img src="https://ponck33kg-ux.github.io/rune_mini_app/helmet.png" alt="">
+</div>
 
   <div class="fire-layer">
     <img src="https://ponck33kg-ux.github.io/rune_mini_app/fire.png" alt="">
