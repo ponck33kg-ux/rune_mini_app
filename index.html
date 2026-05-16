@@ -13,8 +13,6 @@
     --gold: #C9A84C;
     --gold-bright: #FFB700;
     --gold-dim: #8a6e2f;
-    --fire-orange: #ff6b1a;
-    --fire-yellow: #ffd700;
   }
 
   html, body {
@@ -34,21 +32,19 @@
     overflow: hidden;
   }
 
-  /* ── Фон ── */
   .bg-layer {
     position: fixed;
     inset: 0;
-    background-image: url('https://ponck33kg-ux.github.io/rune_mini_app/mini_app_Full_Content_%D1%84%D0%BE%D0%BD.png');
+    background-image: url('https://ponck33kg-ux.github.io/rune_mini_app/bg.png');
     background-size: cover;
     background-position: center;
     z-index: 0;
   }
 
-  /* ── Шлем ── */
-  .-layer {
+  .helmet-layer {
     position: fixed;
     inset: 0;
-    background-image: url('https://ponck33kg-ux.github.io/rune_mini_app/.png');
+    background-image: url('https://ponck33kg-ux.github.io/rune_mini_app/helmet.png');
     background-size: cover;
     background-position: center top;
     opacity: 0.3;
@@ -56,7 +52,6 @@
     mix-blend-mode: luminosity;
   }
 
-  /* ── Огонь ── */
   .fire-layer {
     position: fixed;
     bottom: -60px;
@@ -84,7 +79,6 @@
     100% { transform: scaleX(1) scaleY(1.03); opacity: 0.42; }
   }
 
-  /* ── Искры ── */
   .sparks-container {
     position: fixed;
     bottom: 0;
@@ -95,21 +89,6 @@
     z-index: 3;
   }
 
-  .spark {
-    position: absolute;
-    border-radius: 50%;
-    animation: spark-rise var(--duration) ease-out forwards;
-    opacity: 0;
-  }
-
-  @keyframes spark-rise {
-    0%   { transform: translateY(0) translateX(0) scale(1); opacity: 0.9; }
-    30%  { opacity: 0.8; }
-    70%  { opacity: 0.4; }
-    100% { transform: translateY(var(--rise)) translateX(var(--drift)) scale(0.2); opacity: 0; }
-  }
-
-  /* ── Затемнение сверху ── */
   .overlay-top {
     position: fixed;
     top: 0; left: 0; right: 0;
@@ -119,7 +98,6 @@
     pointer-events: none;
   }
 
-  /* ── Затемнение снизу ── */
   .overlay-bottom {
     position: fixed;
     bottom: 0; left: 0; right: 0;
@@ -129,21 +107,17 @@
     pointer-events: none;
   }
 
-  /* ── Контент ── */
   .content {
     position: relative;
     z-index: 10;
     width: 100%;
     max-width: 400px;
-    padding: 0 24px;
+    padding: 48px 24px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding-top: 48px;
-    padding-bottom: 48px;
   }
 
-  /* ── Шапка ── */
   .tagline {
     font-family: 'Cinzel', serif;
     font-size: 11px;
@@ -163,7 +137,6 @@
     text-align: center;
   }
 
-  /* ── Заголовок ── */
   .hero-title {
     font-family: 'Cinzel Decorative', serif;
     font-size: 42px;
@@ -171,9 +144,7 @@
     line-height: 1.1;
     text-align: center;
     color: var(--gold);
-    text-shadow:
-      0 0 40px rgba(201,168,76,0.6),
-      0 0 80px rgba(201,168,76,0.2);
+    text-shadow: 0 0 40px rgba(201,168,76,0.6), 0 0 80px rgba(201,168,76,0.2);
     margin-bottom: 4px;
     letter-spacing: 0.05em;
   }
@@ -185,14 +156,11 @@
     line-height: 1.1;
     text-align: center;
     color: var(--gold);
-    text-shadow:
-      0 0 40px rgba(201,168,76,0.6),
-      0 0 80px rgba(201,168,76,0.2);
+    text-shadow: 0 0 40px rgba(201,168,76,0.6), 0 0 80px rgba(201,168,76,0.2);
     margin-bottom: 28px;
     letter-spacing: 0.05em;
   }
 
-  /* ── Разделитель ── */
   .divider {
     width: 80%;
     height: 1px;
@@ -200,7 +168,6 @@
     margin-bottom: 24px;
   }
 
-  /* ── Анимированный текст ── */
   .animated-text {
     font-family: 'Crimson Text', serif;
     font-style: italic;
@@ -213,7 +180,6 @@
     transition: opacity 0.5s ease;
   }
 
-  /* ── Поле ввода ── */
   .input-wrap {
     width: 100%;
     margin-bottom: 32px;
@@ -246,7 +212,6 @@
     box-shadow: 0 0 20px rgba(201,168,76,0.1);
   }
 
-  /* ── Выбери расклад ── */
   .choose-label {
     font-family: 'Cinzel', serif;
     font-size: 12px;
@@ -257,7 +222,6 @@
     text-align: center;
   }
 
-  /* ── Кнопки раскладов ── */
   .spreads {
     width: 100%;
     display: flex;
@@ -276,7 +240,6 @@
     align-items: center;
     justify-content: space-between;
     transition: all 0.25s ease;
-    text-decoration: none;
   }
 
   .spread-btn:hover, .spread-btn:active {
@@ -316,16 +279,14 @@
     white-space: nowrap;
   }
 
-  .spread-price .star {
-    color: var(--gold);
-  }
+  .spread-price .star { color: var(--gold); }
 </style>
 </head>
 <body>
 
 <div class="page">
   <div class="bg-layer"></div>
-  <div class="-layer"></div>
+  <div class="helmet-layer"></div>
 
   <div class="fire-layer">
     <img src="https://ponck33kg-ux.github.io/rune_mini_app/fire.png" alt="">
@@ -387,7 +348,6 @@
 </div>
 
 <script>
-  // ── Анимированный текст ──
   const texts = [
     'Знаки проявляются...',
     'Духи советуются...',
@@ -409,7 +369,6 @@
   }
   setInterval(rotateText, 3000);
 
-  // ── Искры (canvas) ──
   const canvas = document.getElementById('sparks');
   const ctx = canvas.getContext('2d');
 
@@ -426,17 +385,14 @@
     const x = window.innerWidth * 0.3 + Math.random() * window.innerWidth * 0.4;
     const size = Math.random() * 2.5 + 0.5;
     const colors = [
-      `rgba(255,183,0,`,
-      `rgba(255,120,20,`,
-      `rgba(255,220,80,`,
-      `rgba(255,100,10,`,
+      'rgba(255,183,0,',
+      'rgba(255,120,20,',
+      'rgba(255,220,80,',
+      'rgba(255,100,10,',
     ];
     const color = colors[Math.floor(Math.random() * colors.length)];
     sparks.push({
-      x,
-      y: canvas.height,
-      size,
-      color,
+      x, y: canvas.height, size, color,
       vx: (Math.random() - 0.5) * 1.2,
       vy: -(Math.random() * 3 + 2),
       life: 1,
@@ -446,7 +402,6 @@
 
   function animateSparks() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
     if (Math.random() < 0.35) spawnSpark();
 
     for (let i = sparks.length - 1; i >= 0; i--) {
@@ -457,10 +412,7 @@
       s.vy *= 0.995;
       s.life -= s.decay;
 
-      if (s.life <= 0) {
-        sparks.splice(i, 1);
-        continue;
-      }
+      if (s.life <= 0) { sparks.splice(i, 1); continue; }
 
       ctx.beginPath();
       ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
@@ -474,30 +426,25 @@
         ctx.fill();
       }
     }
-
     requestAnimationFrame(animateSparks);
   }
   animateSparks();
 
-  // ── Логика кнопок ──
   function startSpread(type) {
     const question = document.getElementById('question').value.trim();
     if (!question) {
-      document.getElementById('question').focus();
-      document.getElementById('question').placeholder = '⚡ Сначала напиши вопрос...';
-      setTimeout(() => {
-        document.getElementById('question').placeholder = 'Напиши вопрос здесь';
-      }, 2000);
+      const inp = document.getElementById('question');
+      inp.focus();
+      inp.placeholder = '⚡ Сначала напиши вопрос...';
+      setTimeout(() => { inp.placeholder = 'Напиши вопрос здесь'; }, 2000);
       return;
     }
-
     const tg = window.Telegram?.WebApp;
     if (tg) {
       tg.sendData(JSON.stringify({ action: 'spread', spread_type: type, situation: question }));
     }
   }
 
-  // Telegram WebApp init
   if (window.Telegram?.WebApp) {
     window.Telegram.WebApp.ready();
     window.Telegram.WebApp.expand();
