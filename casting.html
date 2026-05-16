@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Рунический расклад</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Crimson+Text:ital,wght@0,400;1,400&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --gold: #C9A84C;
+    --gold-bright: #FFB700;
+    --gold-dim: #8a6e2f;
+    --bg: #080610;
+    --bg2: #0f0b1e;
+    --purple: #3d1a6e;
+    --purple-mid: #6b3fa0;
+    --text: #e8d8c0;
+    --text-dim: #7a6a55;
+  }
+
+  html, body {
+    width: 100%; min-height: 100vh;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Crimson Text', serif;
+    overflow-x: hidden;
+  }
+
+  .bg-canvas {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 50% 0%, rgba(61,26,110,0.5) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 30% at 20% 80%, rgba(30,10,60,0.4) 0%, transparent 60%),
+      radial-gradient(ellipse 30% 20% at 80% 60%, rgba(50,20,90,0.3) 0%, transparent 50%);
+  }
+
+  .stars { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+  .star {
+    position: absolute; background: #fff; border-radius: 50%;
+    animation: twinkle var(--d) ease-in-out infinite alternate;
+  }
+  @keyframes twinkle { from { opacity: 0.05; } to { opacity: var(--op); } }
+
+  .scene {
+    position: relative; z-index: 1;
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 2rem 1rem;
+  }
+
+  .ornament {
+    font-family: 'Cinzel', serif;
+    font-size: 11px; letter-spacing: 0.3em;
+    color: var(--gold-dim);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .title-rune {
+    font-family: 'Cinzel', serif;
+    font-size: 22px; font-weight: 600;
+    color: var(--gold);
+    letter-spacing: 0.15em;
+    margin-bottom: 2rem;
+    text-shadow: 0 0 30px rgba(201,168,76,0.4);
+  }
+
+  .divider {
+    width: 180px; height: 1px;
+    background: linear-gradient(to right, transparent, var(--gold-dim), transparent);
+    margin: 0 auto 2rem;
+  }
+
+  .phase { width: 100%; display: flex; flex-direction: column; align-items: center; }
+  .phase.hidden { display: none; }
+
+  .cauldron-wrap {
+    display: flex; flex-direction: column; align-items: center; gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .cauldron-symbol {
+    font-size: 72px; line-height: 1;
+    animation: levitate 3s ease-in-out infinite;
+    filter: drop-shadow(0 0 20px rgba(107,63,160,0.8)) drop-shadow(0 0 40px rgba(61,26,110,0.5));
+  }
+  @keyframes levitate {
+    0%,100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-12px) scale(1.03); }
+  }
+
+  .loading-text {
+    font-family: 'Cinzel', serif;
+    font-size: 14px; letter-spacing: 0.2em;
+    color: var(--gold-dim);
+    animation: pulse-text 2s ease-in-out infinite alternate;
+  }
+  @keyframes pulse-text { from { opacity: 0.4; } to { opacity: 1; } }
+
+  .particles { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+  .particle {
+    position: absolute; border-radius: 50%;
+    animation: rise var(--d) ease-in infinite;
+    opacity: 0;
+  }
+  @keyframes rise {
+    0% { transform: translateY(0) translateX(0) scale(1); opacity: 0.8; }
+    100% { transform: translateY(-160px) translateX(var(--dx)) scale(0.3); opacity: 0; }
+  }
+
+  .btn-reveal {
+    font-family: 'Cinzel', serif;
+    font-size: 14px; letter-spacing: 0.2em;
+    padding: 0.9rem 2.5rem;
+    background: transparent;
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    border-radius: 2px;
+    cursor: pointer;
+    position: relative; overflow: hidden;
+    transition: color 0.3s, box-shadow 0.3s;
+    box-shadow: 0 0 20px rgba(201,168,76,0.15), inset 0 0 20px rgba(201,168,76,0.05);
+  }
+  .btn-reveal::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(201,168,76,0.15), rgba(201,168,76,0.05));
+    opacity: 0; transition: opacity 0.3s;
+  }
+  .btn-reveal:hover { box-shadow: 0 0 35px rgba(201,168,76,0.4), inset 0 0 20px rgba(201,168,76,0.1); }
+  .btn-reveal:hover::before { opacity: 1; }
+  .btn-reveal:active { transform: scale(0.97); }
+
+  .spread-type {
+    font-family: 'Cinzel', serif;
+    font-size: 11px; letter-spacing: 0.3em;
+    color: var(--gold-dim); text-transform: uppercase;
+    margin-bottom: 1.5rem;
+  }
+
+  .runes-row {
+    display: flex; gap: 1.5rem;
+    align-items: flex-start; justify-content: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .rune-slot {
+    display: flex; flex-direction: column; align-items: center; gap: 0.7rem;
+    opacity: 0;
+  }
+  .rune-slot.revealed { animation: reveal-in 0.8s cubic-bezier(0.16,1,0.3,1) forwards; }
+  @keyframes reveal-in {
+    from { opacity: 0; transform: translateY(24px) scale(0.9); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .rune-pos {
+    font-family: 'Cinzel', serif;
+    font-size: 10px; letter-spacing: 0.25em;
+    color: var(--gold-dim); text-transform: uppercase;
+  }
+
+  .stone-wrap {
+    position: relative; width: 110px; height: 110px;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .stone-glow {
+    position: absolute; inset: -15px; border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(201,168,76,0.0) 30%, transparent 70%);
+    animation: glow-pulse 3s ease-in-out infinite;
+  }
+  @keyframes glow-pulse {
+    0%,100% { opacity: 0.4; transform: scale(0.95); }
+    50% { opacity: 1; transform: scale(1.05); }
+  }
+
+  .stone-img {
+    width: 110px; height: 110px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 12px rgba(201,168,76,0.5)) drop-shadow(0 0 25px rgba(201,168,76,0.25));
+    animation: stone-float 4s ease-in-out infinite;
+    transition: filter 0.3s;
+  }
+  .stone-img:hover {
+    filter: drop-shadow(0 0 20px rgba(201,168,76,0.8)) drop-shadow(0 0 40px rgba(255,183,0,0.4));
+  }
+  .stone-img.reversed {
+    transform: rotate(180deg);
+    filter: drop-shadow(0 0 12px rgba(107,63,160,0.6)) drop-shadow(0 0 25px rgba(61,26,110,0.4));
+    animation: stone-float-rev 4s ease-in-out infinite;
+  }
+  @keyframes stone-float {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+  @keyframes stone-float-rev {
+    0%,100% { transform: rotate(180deg) translateY(0); }
+    50% { transform: rotate(180deg) translateY(-6px); }
+  }
+
+  .rune-name {
+    font-family: 'Cinzel', serif;
+    font-size: 13px; color: var(--gold);
+    letter-spacing: 0.1em;
+  }
+
+  .rune-reversed-badge {
+    font-size: 10px; letter-spacing: 0.15em;
+    color: var(--purple-mid);
+    font-family: 'Cinzel', serif;
+  }
+
+  .separator {
+    width: 60%; height: 1px;
+    background: linear-gradient(to right, transparent, rgba(201,168,76,0.3), transparent);
+    margin: 0.5rem auto 1.5rem;
+  }
+
+  .interpretation {
+    max-width: 380px; text-align: center;
+    font-size: 17px; line-height: 1.8;
+    color: var(--text);
+    font-style: italic;
+    opacity: 0;
+    padding: 0 1rem;
+    margin-bottom: 2rem;
+  }
+  .interpretation.visible {
+    animation: fade-up 1s ease forwards;
+  }
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .actions {
+    display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;
+    opacity: 0;
+  }
+  .actions.visible { animation: fade-up 1s 0.3s ease forwards; }
+
+  .btn-again {
+    font-family: 'Cinzel', serif;
+    font-size: 12px; letter-spacing: 0.2em;
+    padding: 0.7rem 1.8rem;
+    background: transparent;
+    border: 1px solid rgba(201,168,76,0.4);
+    color: var(--gold-dim);
+    border-radius: 2px;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .btn-again:hover { border-color: var(--gold); color: var(--gold); }
+
+  .phase-dots {
+    display: flex; gap: 8px; margin-bottom: 2rem;
+  }
+  .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    border: 1px solid var(--gold-dim);
+    background: transparent;
+    transition: background 0.4s;
+  }
+  .dot.active { background: var(--gold); border-color: var(--gold); }
+</style>
+</head>
+<body>
+
+<div class="bg-canvas"></div>
+<div class="stars" id="stars"></div>
+<div class="particles" id="particles"></div>
+
+<div class="scene">
+  <div class="ornament">✦ &nbsp; Рунический оракул &nbsp; ✦</div>
+  <div class="title-rune" id="spread-title">Расклад</div>
+  <div class="divider"></div>
+
+  <div class="phase-dots">
+    <div class="dot active" id="dot1"></div>
+    <div class="dot" id="dot2"></div>
+  </div>
+
+  <div class="phase" id="phase1">
+    <div class="cauldron-wrap">
+      <div class="cauldron-symbol">᛭</div>
+      <div class="loading-text" id="loading-text">Руны открывают ответ...</div>
+    </div>
+    <button class="btn-reveal" id="reveal-btn" onclick="startReveal()">
+      Открыть расклад
+    </button>
+  </div>
+
+  <div class="phase hidden" id="phase2">
+    <div class="spread-type" id="spread-type-label"></div>
+    <div class="runes-row" id="runes-row"></div>
+    <div class="separator"></div>
+    <div class="interpretation" id="interpretation"></div>
+    <div class="actions" id="actions">
+      <button class="btn-again" onclick="resetCasting()">← Новое гадание</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const BASE_URL = 'https://ponck33kg-ux.github.io/rune_mini_app';
+
+const SPREAD_LABELS = {
+  single: 'Одна руна',
+  triple: 'Три руны · Прошлое · Настоящее · Будущее',
+  five: 'Пять рун · Глубокий расклад'
+};
+
+const POSITIONS = {
+  single: [''],
+  triple: ['Прошлое', 'Настоящее', 'Будущее'],
+  five: ['Ситуация', 'Препятствие', 'Совет', 'Скрытое', 'Итог']
+};
+
+let castingData = null;
+
+function getTelegramData() {
+  try {
+    const tg = window.Telegram?.WebApp;
+    if (tg?.initDataUnsafe) {
+      return tg.initDataUnsafe;
+    }
+  } catch(e) {}
+  return null;
+}
+
+function parseUrlParams() {
+  const params = new URLSearchParams(window.location.search);
+  return {
+    spread: params.get('spread') || 'triple',
+    runes: params.get('runes') ? JSON.parse(decodeURIComponent(params.get('runes'))) : null,
+    interpretation: params.get('text') ? decodeURIComponent(params.get('text')) : null,
+    greeting: params.get('greeting') ? decodeURIComponent(params.get('greeting')) : null,
+  };
+}
+
+function getDemoData(spreadType) {
+  const demoRunes = {
+    single: [{ name: 'Fehu', image: 'Fehu.png', is_reversed: false }],
+    triple: [
+      { name: 'Algiz', image: 'Algiz.png', is_reversed: false },
+      { name: 'Nauthiz', image: 'Nauthiz.png', is_reversed: true },
+      { name: 'Sowilo', image: 'Sowilo.png', is_reversed: false },
+    ],
+    five: [
+      { name: 'Fehu', image: 'Fehu.png', is_reversed: false },
+      { name: 'Hagalaz', image: 'Hagalaz.png', is_reversed: false },
+      { name: 'Algiz', image: 'Algiz.png', is_reversed: true },
+      { name: 'Jera', image: 'Jera.png', is_reversed: false },
+      { name: 'Sowilo', image: 'Sowilo.png', is_reversed: false },
+    ]
+  };
+  return {
+    spread: spreadType,
+    runes: demoRunes[spreadType],
+    interpretation: 'Древние знаки открыли свой голос. Путь лежит сквозь испытание — но за ним ждёт свет. Доверяй интуиции, она не подведёт тебя в этот час.',
+    greeting: null
+  };
+}
+
+function init() {
+  const params = parseUrlParams();
+  castingData = params.runes ? params : getDemoData(params.spread);
+  document.getElementById('spread-title').textContent =
+    castingData.spread === 'single' ? 'Быстрое гадание' :
+    castingData.spread === 'triple' ? 'Расклад трёх рун' : 'Глубокий расклад';
+  buildStars();
+  startParticles();
+  startLoadingTextRotation();
+}
+
+function buildStars() {
+  const el = document.getElementById('stars');
+  for (let i = 0; i < 80; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const size = Math.random() * 1.5 + 0.5;
+    const op = (Math.random() * 0.4 + 0.1).toFixed(2);
+    s.style.cssText = `width:${size}px;height:${size}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${(Math.random()*4+2).toFixed(1)}s;--op:${op};animation-delay:${(Math.random()*4).toFixed(1)}s`;
+    el.appendChild(s);
+  }
+}
+
+let particleTimer;
+function startParticles() {
+  const el = document.getElementById('particles');
+  particleTimer = setInterval(() => {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const size = Math.random() * 3 + 1;
+    const colors = ['rgba(201,168,76,0.8)', 'rgba(107,63,160,0.7)', 'rgba(255,183,0,0.6)'];
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    const dx = ((Math.random() - 0.5) * 80).toFixed(0);
+    p.style.cssText = `width:${size}px;height:${size}px;background:${color};left:${30+Math.random()*40}%;bottom:20%;--d:${(Math.random()*2+1.5).toFixed(1)}s;--dx:${dx}px;animation-delay:${(Math.random()*0.3).toFixed(2)}s`;
+    el.appendChild(p);
+    setTimeout(() => p.remove(), 3500);
+  }, 250);
+}
+
+function stopParticles() { clearInterval(particleTimer); }
+
+const loadingTexts = [
+  'Руны открывают ответ...',
+  'Духи советуются...',
+  'Знаки проявляются...',
+  'Древние говорят...',
+  'Норны прядут нить...'
+];
+let ltIdx = 0, ltTimer;
+function startLoadingTextRotation() {
+  ltTimer = setInterval(() => {
+    ltIdx = (ltIdx + 1) % loadingTexts.length;
+    const el = document.getElementById('loading-text');
+    if (el) { el.style.opacity = 0; setTimeout(() => { el.textContent = loadingTexts[ltIdx]; el.style.opacity = 1; }, 300); }
+  }, 2200);
+}
+
+function startReveal() {
+  clearInterval(ltTimer);
+  stopParticles();
+  document.getElementById('dot1').classList.remove('active');
+  document.getElementById('dot2').classList.add('active');
+  document.getElementById('phase1').classList.add('hidden');
+  const p2 = document.getElementById('phase2');
+  p2.classList.remove('hidden');
+
+  const { spread, runes, interpretation, greeting } = castingData;
+  const positions = POSITIONS[spread];
+  document.getElementById('spread-type-label').textContent = SPREAD_LABELS[spread];
+
+  const row = document.getElementById('runes-row');
+  row.innerHTML = '';
+
+  runes.forEach((rune, i) => {
+    const slot = document.createElement('div');
+    slot.className = 'rune-slot';
+    const pos = positions[i] ? `<div class="rune-pos">${positions[i]}</div>` : '';
+    const badge = rune.is_reversed ? `<div class="rune-reversed-badge">↺ перевёрнута</div>` : '';
+    slot.innerHTML = `
+      ${pos}
+      <div class="stone-wrap">
+        <div class="stone-glow"></div>
+        <img class="stone-img${rune.is_reversed ? ' reversed' : ''}"
+          src="${BASE_URL}/stones/${rune.image}"
+          alt="${rune.name}"
+          onerror="this.style.opacity='0.3'">
+      </div>
+      <div class="rune-name">${rune.name}</div>
+      ${badge}
+    `;
+    row.appendChild(slot);
+
+    setTimeout(() => slot.classList.add('revealed'), 300 + i * 500);
+  });
+
+  const interpDelay = 300 + runes.length * 500 + 600;
+  setTimeout(() => {
+    const interpEl = document.getElementById('interpretation');
+    interpEl.textContent = greeting || interpretation || '';
+    interpEl.classList.add('visible');
+  }, interpDelay);
+
+  setTimeout(() => {
+    document.getElementById('actions').classList.add('visible');
+  }, interpDelay + 400);
+}
+
+function resetCasting() {
+  const tg = window.Telegram?.WebApp;
+  if (tg) {
+    tg.sendData(JSON.stringify({ action: 'new_casting' }));
+    tg.close();
+  } else {
+    window.location.reload();
+  }
+}
+
+init();
+</script>
+</body>
+</html>
