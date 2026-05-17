@@ -452,10 +452,23 @@
     }
   }
 
-  if (window.Telegram?.WebApp) {
+const urlParams = new URLSearchParams(window.location.search);
+const freeAvailable = urlParams.get('free') === '1';
+
+function updateFreeLabel() {
+    const priceEl = document.querySelector('.spread-btn .spread-price');
+    if (priceEl) {
+        priceEl.innerHTML = freeAvailable
+            ? '1 раз бесплатно'
+            : '2 <span class="star">⭐</span>';
+    }
+}
+updateFreeLabel();
+
+if (window.Telegram?.WebApp) {
     window.Telegram.WebApp.ready();
     window.Telegram.WebApp.expand();
-  }
+}
 </script>
 </body>
 </html>
