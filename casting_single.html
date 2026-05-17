@@ -111,6 +111,8 @@ body {
   width: 180px;
   height: 180px;
   margin-bottom: 14px;
+  z-index: 5;
+  position: relative;
 }
 
 .flipper {
@@ -130,12 +132,21 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255,255,255,0.08);
+  background: transparent;
 }
 
 .face.back { transform: rotateY(180deg); }
-.face img { width: 120px; height: 120px; object-fit: contain; }
-.face.back img { filter: drop-shadow(0 0 12px rgba(201,162,39,0.7)); }
+.face img { width: 140px; height: 140px; object-fit: contain; }
+.face.front img {
+  opacity: 0.5;
+  filter: grayscale(0.6) brightness(0.7);
+}
+.face.back img {
+  filter:
+    drop-shadow(0 0 18px rgba(201,162,39,0.95))
+    drop-shadow(0 0 40px rgba(201,162,39,0.6))
+    brightness(1.25);
+}
 
 .rune-name {
   font-size: 18px;
@@ -231,16 +242,7 @@ body {
 </div>
 
 <script>
-const runes = [
-  {name:'Феху',file:'Fehu'},{name:'Уруз',file:'Uruz'},{name:'Турисаз',file:'Thurisaz'},
-  {name:'Ансуз',file:'Ansuz'},{name:'Райдо',file:'Raidho'},{name:'Кано',file:'Kaunan'},
-  {name:'Гебо',file:'Gebo'},{name:'Вуньо',file:'Wunjo'},{name:'Хагалаз',file:'Hagalaz'},
-  {name:'Наутиз',file:'Nauthiz'},{name:'Иса',file:'Isa'},{name:'Йера',file:'Jera'},
-  {name:'Эйваз',file:'Eihwaz'},{name:'Перт',file:'Perthro'},{name:'Альгиз',file:'Algiz'},
-  {name:'Соулу',file:'Sowilo'},{name:'Тейваз',file:'Tiwaz'},{name:'Беркана',file:'Berkana'},
-  {name:'Эваз',file:'Ehwaz'},{name:'Манназ',file:'Mannaz'},{name:'Лагуз',file:'Laguz'},
-  {name:'Ингуз',file:'Ingwaz'},{name:'Одал',file:'Othalan'},{name:'Дагаз',file:'Dagaz'}
-];
+
 
 const ticker      = document.getElementById('ticker');
 const flipper     = document.getElementById('flipper');
@@ -283,35 +285,53 @@ function accelerate(cb) {
   }, 130);
 }
 
-function runCasting() {
-  startBtn.disabled = true;
+const runeFileMap = {
+  'Феху':'Fehu','Уруз':'Uruz','Турисаз':'Thurisaz','Ансуз':'Ansuz',
+  'Райдо':'Raidho','Кано':'Kaunan','Гебо':'Gebo','Вуньо':'Wunjo',
+  'Хагалаз':'Hagalaz','Наутиз':'Nauthiz','Иса':'Isa','Йера':'Jera',
+  'Эйваз':'Eihwaz','Перт':'Perthro','Альгиз':'Algiz','Соулу':'Sowilo',
+  'Тейваз':'Tiwaz','Беркана':'Berkana','Эваз':'Ehwaz','Манназ':'Mannaz',
+  'Лагуз':'Laguz','Ингуз':'Ingwaz','Одал':'Othalan','Дагаз':'Dagaz'
+};
+
+function getParams() {
+  const p = new URLSearchParams(window.location.search);
+  const name = p.get('rune') || '';
+  const reversed = p.get('reversed') === '1';
+  const text = p.get('text') || '';
+  const file = runeFileMap[name] || null;
+  return { name, reversed, text, file };
+}
+
+function runCasting(params) {
   repeatBtn.classList.remove('visible');
   textBlock.classList.add('placeholder');
   textBlock.textContent = '...';
   runeName.textContent = '';
   flipper.classList.remove('flipped');
 
-  const chosen = runes[Math.floor(Math.random() * runes.length)];
-  const reversed = Math.random() > 0.5;
-  const imgUrl = 'stones/' + chosen.file + '.png';
+  const imgUrl = params.file
+    ? 'stones/' + params.file + '.png'
+    : 'stones/Fehu.png';
 
   runeBackImg.src = imgUrl;
   runeFrontImg.src = imgUrl;
-  runeFrontImg.style.transform = reversed ? 'rotate(180deg)' : '';
+  runeFrontImg.style.transform = params.reversed ? 'rotate(180deg)' : '';
 
   accelerate(() => {
     flash(() => {
       setTickerSpeed(4);
       runeBackImg.style.transform = 'rotate(180deg)';
       runeBackImg.style.opacity = '0.7';
-      runeName.textContent = reversed ? chosen.name + ' (перевёрнута)' : chosen.name;
+      runeName.textContent = params.reversed
+        ? params.name + ' (перевёрнута)'
+        : params.name;
 
       setTimeout(() => {
         flipper.classList.add('flipped');
         setTimeout(() => {
           textBlock.classList.remove('placeholder');
-          textBlock.textContent = 'Здесь появится толкование руны от оракула.';
-          startBtn.disabled = false;
+          textBlock.textContent = params.text || 'Толкование не получено.';
           repeatBtn.classList.add('visible');
         }, 900);
       }, 400);
@@ -320,16 +340,17 @@ function runCasting() {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
-  setTimeout(runCasting, 600);
+  const params = getParams();
+  setTimeout(() => runCasting(params), 600);
 });
 
 repeatBtn.addEventListener('click', () => {
   // TODO: раскомментировать вызов инвоиса Telegram Stars
   // Telegram.WebApp.openInvoice(invoiceUrl, (status) => {
-  //   if (status === 'paid') runCasting();
+  //   if (status === 'paid') runCasting(getParams());
   // });
 
-  runCasting(); // временно — прямой перезапуск для тестирования
+  runCasting(getParams()); // временно — прямой перезапуск для тестирования
 });
 </script>
 </body>
