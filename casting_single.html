@@ -53,8 +53,32 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 28px 20px 40px;
   min-height: 100vh;
+  padding-bottom: 40px;
+}
+
+.top-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding: 28px 20px 0;
+}
+
+.center-section {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.bottom-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding: 0 20px;
 }
 
 .title {
@@ -89,13 +113,6 @@ body {
 @keyframes ticker {
   from { transform: translateX(0); }
   to { transform: translateX(-50%); }
-}
-
-.rune-block-wrap {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
 }
 
 .rune-reveal-wrap {
@@ -179,6 +196,7 @@ body {
   text-transform: uppercase;
   min-height: 26px;
   margin-bottom: 16px;
+  margin-top: 8px;
   text-align: center;
   opacity: 0;
   transition: opacity 0.8s ease;
@@ -232,30 +250,29 @@ body {
   <div class="overlay"></div>
 
   <div class="content">
-    <div class="title">Искра Футарка</div>
-
-    <div class="rune-ticker">
-      <div class="ticker-inner" id="ticker">
-        ᚠ ᚢ ᚦ ᚨ ᚱ ᚲ ᚷ ᚹ ᚺ ᚾ ᛁ ᛃ ᛇ ᛈ ᛉ ᛊ ᛏ ᛒ ᛖ ᛗ ᛚ ᛜ ᛞ ᛟ
-        ᚠ ᚢ ᚦ ᚨ ᚱ ᚲ ᚷ ᚹ ᚺ ᚾ ᛁ ᛃ ᛇ ᛈ ᛉ ᛊ ᛏ ᛒ ᛖ ᛗ ᛚ ᛜ ᛞ ᛟ
+    <div class="top-section">
+      <div class="title">Искра Футарка</div>
+      <div class="rune-ticker">
+        <div class="ticker-inner" id="ticker">
+          ᚠ ᚢ ᚦ ᚨ ᚱ ᚲ ᚷ ᚹ ᚺ ᚾ ᛁ ᛃ ᛇ ᛈ ᛉ ᛊ ᛏ ᛒ ᛖ ᛗ ᛚ ᛜ ᛞ ᛟ
+          ᚠ ᚢ ᚦ ᚨ ᚱ ᚲ ᚷ ᚹ ᚺ ᚾ ᛁ ᛃ ᛇ ᛈ ᛉ ᛊ ᛏ ᛒ ᛖ ᛗ ᛚ ᛜ ᛞ ᛟ
+        </div>
       </div>
     </div>
 
-    <div class="rune-block-wrap">
+    <div class="center-section">
       <div class="rune-reveal-wrap">
         <div class="rune-glow-ring" id="rune-glow"></div>
         <img class="rune-img" id="rune-img" src="stones/Fehu.png" />
       </div>
-
-      <div class="rune-name" id="rune-name"></div>
-
-      <div class="text-block placeholder" id="text-block">
-        Руны открывают путь...
-      </div>
     </div>
 
-    <button class="start-btn" id="start-btn">Бросить руну</button>
-    <button class="repeat-btn" id="repeat-btn">Бросить снова</button>
+    <div class="bottom-section">
+      <div class="rune-name" id="rune-name"></div>
+      <div class="text-block placeholder" id="text-block">Руны открывают путь...</div>
+      <button class="start-btn" id="start-btn">Бросить руну</button>
+      <button class="repeat-btn" id="repeat-btn">Бросить снова</button>
+    </div>
   </div>
 </div>
 
