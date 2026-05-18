@@ -47,14 +47,6 @@ body {
   z-index: 2;
 }
 
-.lightning {
-  position: absolute; inset: 0;
-  background: rgba(192,215,235,0);
-  z-index: 10;
-  pointer-events: none;
-  transition: background 0.15s ease;
-}
-
 .content {
   position: relative;
   z-index: 3;
@@ -106,46 +98,77 @@ body {
   width: 100%;
 }
 
-.flip-container {
-  perspective: 800px;
-  width: 180px;
-  height: 180px;
-  margin-bottom: 14px;
-  z-index: 5;
+.rune-reveal-wrap {
   position: relative;
-}
-
-.flipper {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  transform-style: preserve-3d;
-  transition: transform 0.8s cubic-bezier(0.4,0,0.2,1);
-}
-
-.flipper.flipped { transform: rotateY(180deg); }
-
-.face {
-  position: absolute; inset: 0;
-  backface-visibility: hidden;
-  border-radius: 16px;
+  width: 200px;
+  height: 200px;
+  margin-bottom: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: transparent;
 }
 
-.face.back { transform: rotateY(180deg); }
-.face img { width: 140px; height: 140px; object-fit: contain; }
-.face.front img {
-  opacity: 0.5;
-  filter: grayscale(0.6) brightness(0.7);
+.rune-glow-ring {
+  position: absolute;
+  inset: -20px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(201,162,39,0.25) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 1.2s ease;
 }
-.face.back img {
+
+.rune-glow-ring.active {
+  opacity: 1;
+  animation: glow-breathe 3.5s ease-in-out infinite;
+}
+
+@keyframes glow-breathe {
+  0%,100% { transform: scale(0.92); opacity: 0.6; }
+  50% { transform: scale(1.08); opacity: 1; }
+}
+
+.rune-img {
+  width: 160px;
+  height: 160px;
+  object-fit: contain;
+  opacity: 0;
   filter:
     drop-shadow(0 0 18px rgba(201,162,39,0.95))
-    drop-shadow(0 0 40px rgba(201,162,39,0.6))
-    brightness(1.25);
+    drop-shadow(0 0 40px rgba(201,162,39,0.5))
+    brightness(1.2);
+  position: relative;
+  z-index: 2;
+}
+
+.rune-img.appeared {
+  animation: rune-appear 1.4s cubic-bezier(0.16,1,0.3,1) forwards,
+             rune-levitate 4s 1.4s ease-in-out infinite;
+}
+
+.rune-img.reversed { transform: rotate(180deg); }
+.rune-img.reversed.appeared {
+  animation: rune-appear-rev 1.4s cubic-bezier(0.16,1,0.3,1) forwards,
+             rune-levitate-rev 4s 1.4s ease-in-out infinite;
+}
+
+@keyframes rune-appear {
+  from { opacity: 0; transform: scale(0.6) translateY(30px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes rune-appear-rev {
+  from { opacity: 0; transform: scale(0.6) translateY(30px) rotate(180deg); }
+  to   { opacity: 1; transform: scale(1) translateY(0) rotate(180deg); }
+}
+
+@keyframes rune-levitate {
+  0%,100% { transform: translateY(0); }
+  50%     { transform: translateY(-10px); }
+}
+
+@keyframes rune-levitate-rev {
+  0%,100% { transform: rotate(180deg) translateY(0); }
+  50%     { transform: rotate(180deg) translateY(-10px); }
 }
 
 .rune-name {
@@ -157,7 +180,11 @@ body {
   min-height: 26px;
   margin-bottom: 16px;
   text-align: center;
+  opacity: 0;
+  transition: opacity 0.8s ease;
 }
+
+.rune-name.visible { opacity: 1; }
 
 .text-block {
   width: 100%;
@@ -203,7 +230,6 @@ body {
   <div class="bg"></div>
   <div class="valkyrie"></div>
   <div class="overlay"></div>
-  <div class="lightning" id="lightning"></div>
 
   <div class="content">
     <div class="title">Искра Футарка</div>
@@ -216,23 +242,15 @@ body {
     </div>
 
     <div class="rune-block-wrap">
-      <div class="flip-container">
-        <div class="flipper" id="flipper">
-          <div class="face front">
-            <img id="rune-back-img"
-              src="stones/Fehu.png"
-              style="transform:rotate(180deg);opacity:0.5;filter:grayscale(0.5);" />
-          </div>
-          <div class="face back">
-            <img id="rune-front-img" src="stones/Fehu.png" />
-          </div>
-        </div>
+      <div class="rune-reveal-wrap">
+        <div class="rune-glow-ring" id="rune-glow"></div>
+        <img class="rune-img" id="rune-img" src="stones/Fehu.png" />
       </div>
 
       <div class="rune-name" id="rune-name"></div>
 
       <div class="text-block placeholder" id="text-block">
-        Нажми кнопку — руны откроют путь
+        Руны открывают путь...
       </div>
     </div>
 
@@ -244,34 +262,15 @@ body {
 <script>
 
 
-const ticker      = document.getElementById('ticker');
-const flipper     = document.getElementById('flipper');
-const runeBackImg = document.getElementById('rune-back-img');
-const runeFrontImg= document.getElementById('rune-front-img');
-const runeName    = document.getElementById('rune-name');
-const textBlock   = document.getElementById('text-block');
-const startBtn    = document.getElementById('start-btn');
-const repeatBtn   = document.getElementById('repeat-btn');
-const lightning   = document.getElementById('lightning');
+const ticker    = document.getElementById('ticker');
+const runeImg   = document.getElementById('rune-img');
+const runeGlow  = document.getElementById('rune-glow');
+const runeName  = document.getElementById('rune-name');
+const textBlock = document.getElementById('text-block');
+const startBtn  = document.getElementById('start-btn');
+const repeatBtn = document.getElementById('repeat-btn');
 
 function setTickerSpeed(s) { ticker.style.animationDuration = s + 's'; }
-
-function flash(cb) {
-  const flashes = [
-    {on:300,off:250},{on:200,off:180},{on:150,off:120},{on:400,off:200},{on:100,off:80}
-  ];
-  let i = 0;
-  function next() {
-    if (i >= flashes.length) { cb(); return; }
-    const f = flashes[i++];
-    lightning.style.background = 'rgba(192,215,235,0.55)';
-    setTimeout(() => {
-      lightning.style.background = 'rgba(192,215,235,0)';
-      setTimeout(next, f.off);
-    }, f.on);
-  }
-  next();
-}
 
 function accelerate(cb) {
   let speed = 4;
@@ -308,34 +307,35 @@ function runCasting(params) {
   textBlock.classList.add('placeholder');
   textBlock.textContent = '...';
   runeName.textContent = '';
-  flipper.classList.remove('flipped');
+  runeName.classList.remove('visible');
 
-  const imgUrl = params.file
-    ? 'stones/' + params.file + '.png'
-    : 'stones/Fehu.png';
+  runeImg.classList.remove('appeared', 'reversed');
+  runeImg.style.opacity = '0';
+  runeGlow.classList.remove('active');
 
-  runeBackImg.src = imgUrl;
-  runeFrontImg.src = imgUrl;
-  runeFrontImg.style.transform = params.reversed ? 'rotate(180deg)' : '';
+  const imgUrl = params.file ? 'stones/' + params.file + '.png' : 'stones/Fehu.png';
+  runeImg.src = imgUrl;
 
   accelerate(() => {
-    flash(() => {
-      setTickerSpeed(4);
-      runeBackImg.style.transform = 'rotate(180deg)';
-      runeBackImg.style.opacity = '0.7';
+    setTickerSpeed(4);
+
+    if (params.reversed) runeImg.classList.add('reversed');
+    runeImg.classList.add('appeared');
+
+    setTimeout(() => { runeGlow.classList.add('active'); }, 600);
+
+    setTimeout(() => {
       runeName.textContent = params.reversed
         ? params.name + ' (перевёрнута)'
         : params.name;
+      runeName.classList.add('visible');
+    }, 900);
 
-      setTimeout(() => {
-        flipper.classList.add('flipped');
-        setTimeout(() => {
-          textBlock.classList.remove('placeholder');
-          textBlock.textContent = params.text || 'Толкование не получено.';
-          repeatBtn.classList.add('visible');
-        }, 900);
-      }, 400);
-    });
+    setTimeout(() => {
+      textBlock.classList.remove('placeholder');
+      textBlock.textContent = params.text || 'Толкование не получено.';
+      repeatBtn.classList.add('visible');
+    }, 1600);
   });
 }
 
