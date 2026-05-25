@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Купи монеты</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cinzel+Decorative:wght@400;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --gold: #C9A84C;
+    --gold-bright: #FFD700;
+    --gold-dim: #8a6e2f;
+    --gold-dark: #3d2a0a;
+    --bg: #0d0608;
+    --text: #f5e6c8;
+    --text-dim: #9a7e55;
+    --card-bg: rgba(15, 8, 25, 0.75);
+    --card-border: rgba(201,168,76,0.4);
+  }
+
+  html, body {
+    width: 100%;
+    min-height: 100vh;
+    overflow-x: hidden;
+    background: var(--bg);
+  }
+
+  .page {
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden;
+  }
+
+  /* ── Фон ── */
+  .bg-layer {
+    position: fixed;
+    inset: 0;
+    background-image: url('https://raw.githubusercontent.com/ponck33kg-ux/rune_mini_app/main/treasure.png');
+    background-size: cover;
+    background-position: center top;
+    z-index: 0;
+  }
+
+  .bg-overlay {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(
+      to bottom,
+      rgba(5,2,10,0.55) 0%,
+      rgba(5,2,10,0.2) 35%,
+      rgba(5,2,10,0.3) 60%,
+      rgba(5,2,10,0.9) 100%
+    );
+    z-index: 1;
+  }
+
+  /* ── Бегущая строка рун ── */
+  .rune-ticker {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 32px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    z-index: 3;
+    pointer-events: none;
+  }
+
+  .ticker-inner {
+    display: flex;
+    gap: 16px;
+    white-space: nowrap;
+    color: rgba(201,168,76,0.2);
+    font-size: 18px;
+    animation: ticker 12s linear infinite;
+  }
+
+  @keyframes ticker {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+
+  /* ── Контент ── */
+  .content {
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    max-width: 400px;
+    padding: 48px 20px 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ── Монета ── */
+  .coin-wrap {
+    margin-bottom: 12px;
+    filter: drop-shadow(0 0 24px rgba(255,215,0,0.6)) drop-shadow(0 0 48px rgba(201,168,76,0.3));
+    animation: coin-float 4s ease-in-out infinite;
+  }
+
+  .coin-wrap img {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    display: block;
+  }
+
+  @keyframes coin-float {
+    0%,100% { transform: translateY(0) rotate(-2deg); }
+    50%      { transform: translateY(-10px) rotate(2deg); }
+  }
+
+  /* ── Заголовок ── */
+  .tagline {
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    letter-spacing: 0.4em;
+    color: var(--gold-dim);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    text-align: center;
+  }
+
+  .hero-title {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 44px;
+    font-weight: 700;
+    line-height: 1.05;
+    text-align: center;
+    color: var(--gold-bright);
+    text-shadow:
+      0 0 30px rgba(255,215,0,0.7),
+      0 0 60px rgba(201,168,76,0.4),
+      0 2px 4px rgba(0,0,0,0.8);
+    margin-bottom: 4px;
+    letter-spacing: 0.04em;
+  }
+
+  .hero-sub {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 44px;
+    font-weight: 700;
+    line-height: 1.05;
+    text-align: center;
+    color: var(--gold-bright);
+    text-shadow:
+      0 0 30px rgba(255,215,0,0.7),
+      0 0 60px rgba(201,168,76,0.4),
+      0 2px 4px rgba(0,0,0,0.8);
+    margin-bottom: 28px;
+    letter-spacing: 0.04em;
+  }
+
+  /* ── Выбери пакет ── */
+  .section-label {
+    font-family: 'Cinzel', serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.3em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    text-align: center;
+    text-shadow: 0 0 12px rgba(201,168,76,0.5);
+  }
+
+  /* ── Сетка пакетов ── */
+  .packages-grid {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .pack-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 18px 12px 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.15s ease, border-color 0.2s, box-shadow 0.2s;
+    backdrop-filter: blur(8px);
+  }
+
+  .pack-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(201,168,76,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .pack-card:hover, .pack-card:active {
+    transform: scale(1.03);
+    border-color: rgba(201,168,76,0.7);
+    box-shadow: 0 0 24px rgba(201,168,76,0.2);
+  }
+
+  .pack-card.best {
+    border-color: rgba(255,215,0,0.6);
+    box-shadow: 0 0 20px rgba(255,215,0,0.15);
+  }
+
+  .best-badge {
+    position: absolute;
+    top: 8px; right: 8px;
+    font-family: 'Cinzel', serif;
+    font-size: 8px;
+    letter-spacing: 0.15em;
+    color: #0d0608;
+    background: var(--gold-bright);
+    padding: 2px 6px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+
+  .pack-stars {
+    font-family: 'Cinzel', serif;
+    font-size: 42px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1;
+    margin-bottom: 2px;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+  }
+
+  .pack-stars-label {
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .pack-coins {
+    font-family: 'Crimson Text', serif;
+    font-size: 15px;
+    color: var(--text);
+    margin-bottom: 10px;
+    letter-spacing: 0.05em;
+  }
+
+  .pack-btn {
+    width: 100%;
+    padding: 7px 0;
+    background: linear-gradient(135deg, #c9a227, #f0c040, #c9a227);
+    border: none;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    cursor: pointer;
+    font-family: 'Cinzel', serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: #1a0d00;
+    letter-spacing: 0.05em;
+    box-shadow: 0 2px 8px rgba(201,168,76,0.4);
+    transition: opacity 0.2s;
+  }
+
+  .pack-btn:active { opacity: 0.8; }
+
+  .pack-card.selected {
+    border-color: rgba(255,215,0,0.9);
+    box-shadow: 0 0 28px rgba(255,215,0,0.3);
+  }
+
+  .check-mark {
+    position: absolute;
+    top: 8px; left: 8px;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: var(--gold-bright);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    color: #1a0d00;
+    font-weight: 700;
+  }
+
+  .pack-card.selected .check-mark { display: flex; }
+
+  .buy-btn-wrap {
+    width: 100%;
+    margin-top: 20px;
+  }
+
+  .buy-btn {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, #c9a227, #f0c040, #c9a227);
+    border: none;
+    border-radius: 12px;
+    font-family: 'Cinzel', serif;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    color: #1a0d00;
+    text-transform: uppercase;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(201,168,76,0.4);
+    transition: opacity 0.2s, transform 0.15s;
+    opacity: 0.4;
+    pointer-events: none;
+  }
+
+  .buy-btn.active {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .buy-btn.active:active { transform: scale(0.97); }
+
+  .toast {
+    position: fixed;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: rgba(201,168,76,0.15);
+    border: 1px solid rgba(201,168,76,0.5);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    padding: 12px 24px;
+    font-family: 'Cinzel', serif;
+    font-size: 12px;
+    letter-spacing: 0.15em;
+    color: var(--gold);
+    white-space: nowrap;
+    z-index: 200;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s, transform 0.3s;
+  }
+
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* ── Баланс внизу ── */
+  .balance-row {
+    margin-top: 24px;
+    font-family: 'Cinzel', serif;
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    color: var(--gold-dim);
+    text-align: center;
+  }
+
+  .balance-row span {
+    color: var(--gold);
+  }
+
+  /* ── Лоадер ── */
+  .loading {
+    position: fixed;
+    inset: 0;
+    background: rgba(5,2,10,0.85);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Cinzel', serif;
+    font-size: 14px;
+    letter-spacing: 0.2em;
+    color: var(--gold);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+
+  .loading.active {
+    opacity: 1;
+    pointer-events: all;
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <div class="bg-layer"></div>
+  <div class="bg-overlay"></div>
+
+  <div class="rune-ticker">
+    <div class="ticker-inner">
+      ᚠ ᚢ ᚦ ᚨ ᚱ ᚲ ᚷ ᚹ ᚺ ᚾ ᛁ ᛃ ᛇ ᛈ ᛉ ᛊ ᛏ ᛒ ᛖ ᛗ ᛚ ᛜ ᛞ ᛟ
+      ᚠ ᚢ ᚦ ᚨ ᚱ ᚲ ᚷ ᚹ ᚺ ᚾ ᛁ ᛃ ᛇ ᛈ ᛉ ᛊ ᛏ ᛒ ᛖ ᛗ ᛚ ᛜ ᛞ ᛟ
+    </div>
+  </div>
+
+  <div class="content">
+
+    <div class="coin-wrap">
+      <img src="https://raw.githubusercontent.com/ponck33kg-ux/rune_mini_app/main/coin.png" alt="монета">
+    </div>
+
+    <div class="tagline">Купи монеты</div>
+    <div class="hero-title">УЗНАЙ</div>
+    <div class="hero-sub">БУДУЩЕЕ</div>
+
+    <div class="section-label">Выбери пакет</div>
+
+    <div class="packages-grid">
+
+      <div class="pack-card" onclick="selectPack(this, 'pack_10')">
+        <div class="check-mark">✓</div>
+        <div class="pack-stars">10</div>
+        <div class="pack-stars-label">Stars</div>
+        <div class="pack-coins">5 монет</div>
+        <button class="pack-btn">10 ⭐</button>
+      </div>
+
+      <div class="pack-card" onclick="selectPack(this, 'pack_50')">
+        <div class="check-mark">✓</div>
+        <div class="pack-stars">50</div>
+        <div class="pack-stars-label">Stars</div>
+        <div class="pack-coins">25 монет</div>
+        <button class="pack-btn">50 ⭐</button>
+      </div>
+
+      <div class="pack-card" onclick="selectPack(this, 'pack_180')">
+        <div class="check-mark">✓</div>
+        <div class="pack-stars">180</div>
+        <div class="pack-stars-label">Stars</div>
+        <div class="pack-coins">100 монет</div>
+        <button class="pack-btn">180 ⭐</button>
+      </div>
+
+      <div class="pack-card best" onclick="selectPack(this, 'pack_800')">
+        <div class="check-mark">✓</div>
+        <div class="best-badge">Выгодно</div>
+        <div class="pack-stars">800</div>
+        <div class="pack-stars-label">Stars</div>
+        <div class="pack-coins">500 монет</div>
+        <button class="pack-btn">800 ⭐</button>
+      </div>
+
+    </div>
+
+    <div class="buy-btn-wrap">
+      <button class="buy-btn active" id="buy-btn" onclick="confirmBuy()">
+        Пополнить баланс
+      </button>
+    </div>
+
+    <div class="balance-row" id="balance-row">
+      Баланс: <span id="balance-val">—</span> монет
+    </div>
+
+  </div>
+</div>
+
+<div class="loading" id="loading">Открываю инвоис...</div>
+<div class="toast" id="toast">Выбери количество звёзд</div>
+
+<script>
+const BACKEND = 'https://your-app.up.railway.app'; // ← заменить после деплоя
+
+const tg = window.Telegram?.WebApp;
+if (tg) { tg.ready(); tg.expand(); }
+
+let selectedPack = null;
+
+function selectPack(el, packKey) {
+  document.querySelectorAll('.pack-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedPack = packKey;
+}
+
+let toastTimer;
+function showToast() {
+  const toast = document.getElementById('toast');
+  toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove('show'), 2500);
+}
+
+async function confirmBuy() {
+  if (!selectedPack) { showToast(); return; }
+  if (!tg?.initData) { alert('Открой через Telegram'); return; }
+
+  const loading = document.getElementById('loading');
+  loading.classList.add('active');
+
+  try {
+    const res = await fetch(`${BACKEND}/create_invoice`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pack_key: selectedPack, init_data: tg.initData }),
+    });
+    const data = await res.json();
+    if (data.ok) {
+      setTimeout(() => { loading.classList.remove('active'); tg.close(); }, 800);
+    } else {
+      loading.classList.remove('active');
+      alert('Ошибка: ' + (data.error || 'попробуй снова'));
+    }
+  } catch (e) {
+    loading.classList.remove('active');
+    alert('Ошибка соединения');
+  }
+}
+
+async function loadBalance() {
+  if (!tg?.initData) return;
+  try {
+    const res = await fetch(`${BACKEND}/user_info?init_data=${encodeURIComponent(tg.initData)}`);
+    const data = await res.json();
+    if (data.ok) document.getElementById('balance-val').textContent = data.coins_balance;
+  } catch (e) {}
+}
+
+loadBalance();
+</script>
+</body>
+</html>
