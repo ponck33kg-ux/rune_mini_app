@@ -61,7 +61,13 @@ body {
   font-weight: 700;
   letter-spacing: 3px;
   color: #c9a227;
-  text-shadow: 0 0 20px rgba(201,162,39,0.8), 0 0 40px rgba(201,162,39,0.4);
+  text-shadow: 
+    0 0 20px rgba(201,162,39,0.8), 
+    0 0 40px rgba(201,162,39,0.4),
+    1px 1px 0 rgba(0,0,0,0.9),
+    -1px -1px 0 rgba(0,0,0,0.9),
+    1px -1px 0 rgba(0,0,0,0.9),
+    -1px 1px 0 rgba(0,0,0,0.9);
   text-transform: uppercase;
   margin-bottom: 24px;
   text-align: center;
@@ -125,12 +131,19 @@ body {
 }
 
 .rune-pos-label {
-  font-size: 9px;
+  font-size: 11px;
+  font-weight: 600;
   letter-spacing: 1.5px;
-  color: rgba(201,162,39,0.5);
+  color: #f0d080;
   text-transform: uppercase;
   margin-bottom: 5px;
   text-align: center;
+  text-shadow:
+    1px 1px 0 rgba(0,0,0,0.95),
+    -1px -1px 0 rgba(0,0,0,0.95),
+    1px -1px 0 rgba(0,0,0,0.95),
+    -1px 1px 0 rgba(0,0,0,0.95),
+    0 0 8px rgba(0,0,0,0.8);
 }
 
 .rune-reveal-wrap {
