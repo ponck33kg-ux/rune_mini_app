@@ -315,7 +315,12 @@ body {
 <script>
 const BACKEND = 'https://runebot-production.up.railway.app';
 const MINIAPP  = 'https://ponck33kg-ux.github.io/rune_mini_app';
-
+function getInitData() {
+  const p = new URLSearchParams(window.location.search);
+  const fromUrl = p.get('init_data');
+  if (fromUrl) return decodeURIComponent(fromUrl);
+  return window.Telegram?.WebApp?.initData || '';
+}
 const ticker     = document.getElementById('ticker');
 const textBlock  = document.getElementById('text-block');
 const recastBtn  = document.getElementById('recast-btn');
@@ -394,21 +399,22 @@ function showResult(params) {
 window.addEventListener('DOMContentLoaded', () => { setTimeout(() => showResult(getParams()), 600); });
 
 recastBtn.addEventListener('click', async () => {
-  const tg = window.Telegram && window.Telegram.WebApp;
-  if (!tg || !tg.initData) return;
+  const initData = getInitData();
+  if (!initData) return;
   const p = getParams();
   if (!p.situation) return;
   recastBtn.classList.add('loading');
   try {
     const res = await fetch(BACKEND+'/cast', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ init_data: tg.initData, spread_type: 'triple', situation: p.situation }),
+      body: JSON.stringify({ init_data: initData, spread_type: 'triple', situation: p.situation }),
     });
     const data = await res.json();
     if (!data.ok) { alert(data.error === 'no_coins' ? 'Недостаточно монет' : 'Ошибка'); return; }
-    const url = '/casting_triple.html?' +
+    const encoded = encodeURIComponent(initData);
+    const url = 'casting_triple.html?' +
       data.runes.map((r,i) => 'rune'+(i+1)+'='+encodeURIComponent(r.name_ru)+'&reversed'+(i+1)+'='+(r.reversed?1:0)).join('&') +
-      '&text='+encodeURIComponent(data.text)+'&situation='+encodeURIComponent(p.situation)+'&spread=triple';
+      '&text='+encodeURIComponent(data.text)+'&situation='+encodeURIComponent(p.situation)+'&spread=triple&init_data='+encoded;
     window.location.href = url;
   } catch(e) { alert('Ошибка соединения'); }
   finally { recastBtn.classList.remove('loading'); }
