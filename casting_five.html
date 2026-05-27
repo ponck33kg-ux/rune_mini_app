@@ -289,6 +289,23 @@ body {
 
 .repeat-btn:hover { background: rgba(201,162,39,0.25); }
 .repeat-btn.visible { display: block; }
+
+.action-btns {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 12px; width: 100%; margin-top: 20px;
+}
+.recast-btn, .new-casting-btn {
+  padding: 14px 40px; border-radius: 50px; font-size: 15px;
+  letter-spacing: 2px; cursor: pointer; font-family: 'Georgia', serif;
+  text-transform: uppercase; transition: background 0.2s;
+  display: none; width: 100%; text-align: center;
+}
+.recast-btn { background: rgba(201,162,39,0.15); border: 1px solid rgba(201,162,39,0.6); color: #c9a227; }
+.new-casting-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.6); }
+.recast-btn:hover { background: rgba(201,162,39,0.25); }
+.new-casting-btn:hover { background: rgba(255,255,255,0.1); }
+.recast-btn.visible, .new-casting-btn.visible { display: block; }
+.recast-btn.loading { opacity: 0.5; pointer-events: none; }
 </style>
 </head>
 <body>
@@ -361,16 +378,120 @@ body {
     <div class="bottom-section">
       <div class="runes-names" id="runes-names"></div>
       <div class="text-block placeholder" id="text-block">Руны открывают путь...</div>
-      <button class="repeat-btn" id="repeat-btn">Бросить снова</button>
+      <div class="action-btns">
+        <button class="recast-btn" id="recast-btn">🎲 Перебросить руны</button>
+        <button class="new-casting-btn" id="new-casting-btn">🔮 Новое гадание</button>
+      </div>
     </div>
   </div>
 </div>
 
 <script>
+const BACKEND = 'https://runebot-production.up.railway.app';
+const MINIAPP  = 'https://ponck33kg-ux.github.io/rune_mini_app';
+
 const ticker     = document.getElementById('ticker');
 const textBlock  = document.getElementById('text-block');
-const repeatBtn  = document.getElementById('repeat-btn');
+const recastBtn  = document.getElementById('recast-btn');
+const newBtn     = document.getElementById('new-casting-btn');
 const runesNames = document.getElementById('runes-names');
+
+function setTickerSpeed(s) { ticker.style.animationDuration = s + 's'; }
+
+function accelerate(cb) {
+  let speed = 4; setTickerSpeed(speed); let i = 0;
+  const interval = setInterval(() => {
+    i++; speed = Math.max(0.25, speed * 0.8); setTickerSpeed(speed);
+    if (i >= 22) { clearInterval(interval); cb(); }
+  }, 130);
+}
+
+const runeFileMap = {
+  'Феху':'Fehu','Уруз':'Uruz','Турисаз':'Thurisaz','Ансуз':'Ansuz',
+  'Райдо':'Raidho','Кано':'Kaunan','Гебо':'Gebo','Вуньо':'Wunjo',
+  'Хагалаз':'Hagalaz','Наутиз':'Nauthiz','Иса':'Isa','Йера':'Jera',
+  'Эйваз':'Eihwaz','Перт':'Perthro','Альгиз':'Algiz','Соулу':'Sowilo',
+  'Тейваз':'Tiwaz','Беркана':'Berkana','Эваз':'Ehwaz','Манназ':'Mannaz',
+  'Лагуз':'Laguz','Ингуз':'Ingwaz','Одал':'Othalan','Дагаз':'Dagaz'
+};
+
+function getParams() {
+  const p = new URLSearchParams(window.location.search);
+  const runes = [1,2,3,4,5].map(i => ({
+    name: p.get(`rune${i}`) || '', reversed: p.get(`reversed${i}`) === '1',
+    file: runeFileMap[p.get(`rune${i}`) || ''] || null,
+  }));
+  return { runes, text: p.get('text') || '', situation: p.get('situation') || '', spread: 'five' };
+}
+
+function showResult(params) {
+  recastBtn.classList.remove('visible');
+  newBtn.classList.remove('visible');
+  textBlock.classList.add('placeholder');
+  textBlock.textContent = '...';
+  runesNames.classList.remove('visible');
+  runesNames.innerHTML = '';
+  [1,2,3,4,5].forEach(i => {
+    const img = document.getElementById(`rune-${i}`);
+    const glow = document.getElementById(`glow-${i}`);
+    img.classList.remove('appeared', 'reversed');
+    img.style.opacity = '0';
+    glow.classList.remove('active');
+  });
+  accelerate(() => {
+    setTickerSpeed(4);
+    params.runes.forEach((rune, idx) => {
+      const i = idx + 1;
+      const img = document.getElementById(`rune-${i}`);
+      const glow = document.getElementById(`glow-${i}`);
+      img.src = rune.file ? `stones/${rune.file}.png` : 'stones/Fehu.png';
+      if (rune.reversed) img.classList.add('reversed');
+      img.classList.add('appeared');
+      setTimeout(() => glow.classList.add('active'), 600);
+    });
+    setTimeout(() => {
+      runesNames.innerHTML = params.runes.map((r, idx) => {
+        const label = r.reversed ? r.name + ' 🔄' : r.name;
+        return (idx > 0 ? '<span class="rune-name-sep"> · </span>' : '') + `<span class="rune-name-item">${label}</span>`;
+      }).join('');
+      runesNames.classList.add('visible');
+    }, 900);
+    setTimeout(() => {
+      textBlock.classList.remove('placeholder');
+      textBlock.textContent = params.text || 'Толкование не получено.';
+      recastBtn.classList.add('visible');
+      newBtn.classList.add('visible');
+    }, 1600);
+  });
+}
+
+window.addEventListener('DOMContentLoaded', () => { setTimeout(() => showResult(getParams()), 600); });
+
+recastBtn.addEventListener('click', async () => {
+  const tg = window.Telegram?.WebApp;
+  if (!tg?.initData) return;
+  const p = getParams();
+  if (!p.situation) return;
+  recastBtn.classList.add('loading');
+  try {
+    const res = await fetch(`${BACKEND}/cast`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ init_data: tg.initData, spread_type: 'five', situation: p.situation }),
+    });
+    const data = await res.json();
+    if (!data.ok) { alert(data.error === 'no_coins' ? 'Недостаточно монет' : 'Ошибка'); return; }
+    const url = `${MINIAPP}/casting_five.html?` +
+      data.runes.map((r,i) => `rune${i+1}=${encodeURIComponent(r.name_ru)}&reversed${i+1}=${r.reversed?1:0}`).join('&') +
+      `&text=${encodeURIComponent(data.text)}&situation=${encodeURIComponent(p.situation)}&spread=five`;
+    window.location.href = url;
+  } catch(e) { alert('Ошибка соединения'); }
+  finally { recastBtn.classList.remove('loading'); }
+});
+
+newBtn.addEventListener('click', () => { window.location.href = 'index.html'; });
+</script>
+</body>
+</html>
 
 function setTickerSpeed(s) { ticker.style.animationDuration = s + 's'; }
 
