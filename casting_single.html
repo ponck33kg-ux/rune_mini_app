@@ -396,6 +396,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
 recastBtn.addEventListener('click', async () => {
   const tg = window.Telegram?.WebApp;
+  alert('initData: ' + (tg?.initData ? 'есть' : 'пусто'));
   if (!tg?.initData) return;
   const p = getParams();
   if (!p.situation) return;
