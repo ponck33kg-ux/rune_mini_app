@@ -419,7 +419,7 @@ recastBtn.addEventListener('click', async () => {
     });
     const data = await res.json();
     if (!data.ok) { alert(data.error === 'no_coins' ? 'Недостаточно монет' : 'Ошибка'); return; }
-    const url = MINIAPP+'/casting_triple.html?' +
+    const url = '/casting_triple.html?' +
       data.runes.map((r,i) => 'rune'+(i+1)+'='+encodeURIComponent(r.name_ru)+'&reversed'+(i+1)+'='+(r.reversed?1:0)).join('&') +
       '&text='+encodeURIComponent(data.text)+'&situation='+encodeURIComponent(p.situation)+'&spread=triple';
     window.location.href = url;
