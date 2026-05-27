@@ -477,9 +477,12 @@
     }
     const tg = window.Telegram?.WebApp;
     if (tg) {
+      alert('sendData: ' + type);
       tg.sendData(JSON.stringify({ action: 'spread', spread_type: type, situation: question }));
+    } else {
+      alert('Telegram WebApp не найден');
     }
-  }
+}
 
   const urlParams = new URLSearchParams(window.location.search);
   const freeAvailable = urlParams.get('free') === '1';
