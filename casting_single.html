@@ -305,6 +305,13 @@ body {
 const BACKEND = 'https://runebot-production.up.railway.app';
 const MINIAPP  = 'https://ponck33kg-ux.github.io/rune_mini_app';
 
+function getInitData() {
+  const p = new URLSearchParams(window.location.search);
+  const fromUrl = p.get('init_data');
+  if (fromUrl) return decodeURIComponent(fromUrl);
+  return window.Telegram?.WebApp?.initData || '';
+}
+
 const ticker    = document.getElementById('ticker');
 const runeImg   = document.getElementById('rune-img');
 const runeGlow  = document.getElementById('rune-glow');
@@ -378,9 +385,8 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 recastBtn.addEventListener('click', async () => {
-  const tg = window.Telegram?.WebApp;
-  alert('initData: ' + (tg?.initData ? 'есть' : 'пусто'));
-  if (!tg?.initData) return;
+  const initData = getInitData();
+  if (!initData) return;
   const p = getParams();
   if (!p.situation) return;
   recastBtn.classList.add('loading');
@@ -388,17 +394,16 @@ recastBtn.addEventListener('click', async () => {
     const res = await fetch(`${BACKEND}/cast`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ init_data: tg.initData, spread_type: p.spread, situation: p.situation }),
+      body: JSON.stringify({ init_data: initData, spread_type: p.spread, situation: p.situation }),
     });
     const data = await res.json();
     if (!data.ok) { alert(data.error === 'no_coins' ? 'Недостаточно монет' : 'Ошибка'); return; }
     const r = data.runes[0];
-    window.location.href = `casting_single.html?rune=${encodeURIComponent(r.name_ru)}&reversed=${r.reversed?1:0}&text=${encodeURIComponent(data.text)}&situation=${encodeURIComponent(p.situation)}&spread=single`;
+    const encoded = encodeURIComponent(initData);
+    window.location.href = `casting_single.html?rune=${encodeURIComponent(r.name_ru)}&reversed=${r.reversed?1:0}&text=${encodeURIComponent(data.text)}&situation=${encodeURIComponent(p.situation)}&spread=single&init_data=${encoded}`;
   } catch(e) { alert('Ошибка соединения'); }
   finally { recastBtn.classList.remove('loading'); }
 });
 
 newBtn.addEventListener('click', () => { window.location.href = 'index.html'; });
 </script>
-</body>
-</html>
