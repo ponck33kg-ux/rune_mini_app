@@ -394,7 +394,7 @@ recastBtn.addEventListener('click', async () => {
     const data = await res.json();
     if (!data.ok) { alert(data.error === 'no_coins' ? 'Недостаточно монет' : 'Ошибка'); return; }
     const r = data.runes[0];
-    window.location.href = `${MINIAPP}/casting_single.html?rune=${encodeURIComponent(r.name_ru)}&reversed=${r.reversed?1:0}&text=${encodeURIComponent(data.text)}&situation=${encodeURIComponent(p.situation)}&spread=single`;
+    window.location.href = `casting_single.html?rune=${encodeURIComponent(r.name_ru)}&reversed=${r.reversed?1:0}&text=${encodeURIComponent(data.text)}&situation=${encodeURIComponent(p.situation)}&spread=single`;
   } catch(e) { alert('Ошибка соединения'); }
   finally { recastBtn.classList.remove('loading'); }
 });
