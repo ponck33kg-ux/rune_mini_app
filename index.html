@@ -355,18 +355,18 @@ async function startSpread(type) {
     let url = '';
     if (type === 'single') {
       const r = data.runes[0];
-      url = `${MINIAPP}/casting_single.html?rune=${encodeURIComponent(r.name_ru)}&reversed=${r.reversed?1:0}&text=${encodeURIComponent(data.text)}`;
+      url = `${MINIAPP}/casting_single.html?rune=${encodeURIComponent(r.name_ru)}&reversed=${r.reversed?1:0}&text=${encodeURIComponent(data.text)}&situation=${encodeURIComponent(question)}&spread=single`;
     } else if (type === 'triple') {
       url = `${MINIAPP}/casting_triple.html?` +
         data.runes.map((r,i) => `rune${i+1}=${encodeURIComponent(r.name_ru)}&reversed${i+1}=${r.reversed?1:0}`).join('&') +
-        `&text=${encodeURIComponent(data.text)}`;
+        `&text=${encodeURIComponent(data.text)}&situation=${encodeURIComponent(question)}&spread=triple`;
     } else if (type === 'five') {
       url = `${MINIAPP}/casting_five.html?` +
         data.runes.map((r,i) => `rune${i+1}=${encodeURIComponent(r.name_ru)}&reversed${i+1}=${r.reversed?1:0}`).join('&') +
-        `&text=${encodeURIComponent(data.text)}`;
+        `&text=${encodeURIComponent(data.text)}&situation=${encodeURIComponent(question)}&spread=five`;
     }
 
-    window.location.href = url;
+    tg.openLink(url);
 
   } catch (e) {
     showToast('Ошибка соединения');
