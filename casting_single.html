@@ -226,24 +226,45 @@ body {
 
 .start-btn { display: none; }
 
-.repeat-btn {
+.action-btns {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
   margin-top: 20px;
+}
+
+.recast-btn, .new-casting-btn {
   padding: 14px 40px;
-  background: rgba(201,162,39,0.15);
-  border: 1px solid rgba(201,162,39,0.6);
   border-radius: 50px;
-  color: #c9a227;
-  font-size: 16px;
+  font-size: 15px;
   letter-spacing: 2px;
   cursor: pointer;
   font-family: 'Georgia', serif;
   text-transform: uppercase;
   transition: background 0.2s;
   display: none;
+  width: 100%;
+  text-align: center;
 }
 
-.repeat-btn:hover { background: rgba(201,162,39,0.25); }
-.repeat-btn.visible { display: block; }
+.recast-btn {
+  background: rgba(201,162,39,0.15);
+  border: 1px solid rgba(201,162,39,0.6);
+  color: #c9a227;
+}
+
+.new-casting-btn {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.6);
+}
+
+.recast-btn:hover { background: rgba(201,162,39,0.25); }
+.new-casting-btn:hover { background: rgba(255,255,255,0.1); }
+.recast-btn.visible, .new-casting-btn.visible { display: block; }
+.recast-btn.loading { opacity: 0.5; pointer-events: none; }
 </style>
 </head>
 <body>
@@ -274,32 +295,32 @@ body {
       <div class="rune-name" id="rune-name"></div>
       <div class="text-block placeholder" id="text-block">Руны открывают путь...</div>
       <button class="start-btn" id="start-btn">Бросить руну</button>
-      <button class="repeat-btn" id="repeat-btn">Бросить снова</button>
+      <div class="action-btns">
+        <button class="recast-btn" id="recast-btn">🎲 Перебросить руны</button>
+        <button class="new-casting-btn" id="new-casting-btn">🔮 Новое гадание</button>
+      </div>
     </div>
   </div>
 </div>
 
 <script>
-
+const BACKEND = 'https://runebot-production.up.railway.app';
+const MINIAPP  = 'https://ponck33kg-ux.github.io/rune_mini_app';
 
 const ticker    = document.getElementById('ticker');
 const runeImg   = document.getElementById('rune-img');
 const runeGlow  = document.getElementById('rune-glow');
 const runeName  = document.getElementById('rune-name');
 const textBlock = document.getElementById('text-block');
-const startBtn  = document.getElementById('start-btn');
-const repeatBtn = document.getElementById('repeat-btn');
+const recastBtn = document.getElementById('recast-btn');
+const newBtn    = document.getElementById('new-casting-btn');
 
 function setTickerSpeed(s) { ticker.style.animationDuration = s + 's'; }
 
 function accelerate(cb) {
-  let speed = 4;
-  setTickerSpeed(speed);
-  let i = 0;
+  let speed = 4; setTickerSpeed(speed); let i = 0;
   const interval = setInterval(() => {
-    i++;
-    speed = Math.max(0.25, speed * 0.8);
-    setTickerSpeed(speed);
+    i++; speed = Math.max(0.25, speed * 0.8); setTickerSpeed(speed);
     if (i >= 22) { clearInterval(interval); cb(); }
   }, 130);
 }
@@ -316,62 +337,69 @@ const runeFileMap = {
 function getParams() {
   const p = new URLSearchParams(window.location.search);
   const name = p.get('rune') || '';
-  const reversed = p.get('reversed') === '1';
-  const text = p.get('text') || '';
-  const file = runeFileMap[name] || null;
-  return { name, reversed, text, file };
+  return {
+    name, reversed: p.get('reversed') === '1',
+    text: p.get('text') || '', situation: p.get('situation') || '',
+    spread: p.get('spread') || 'single', file: runeFileMap[name] || null,
+  };
 }
 
-function runCasting(params) {
-  repeatBtn.classList.remove('visible');
+function showResult(params) {
+  recastBtn.classList.remove('visible');
+  newBtn.classList.remove('visible');
   textBlock.classList.add('placeholder');
   textBlock.textContent = '...';
   runeName.textContent = '';
   runeName.classList.remove('visible');
-
   runeImg.classList.remove('appeared', 'reversed');
   runeImg.style.opacity = '0';
   runeGlow.classList.remove('active');
 
-  const imgUrl = params.file ? 'stones/' + params.file + '.png' : 'stones/Fehu.png';
-  runeImg.src = imgUrl;
+  runeImg.src = params.file ? 'stones/' + params.file + '.png' : 'stones/Fehu.png';
 
   accelerate(() => {
     setTickerSpeed(4);
-
     if (params.reversed) runeImg.classList.add('reversed');
     runeImg.classList.add('appeared');
-
-    setTimeout(() => { runeGlow.classList.add('active'); }, 600);
-
+    setTimeout(() => runeGlow.classList.add('active'), 600);
     setTimeout(() => {
-      runeName.textContent = params.reversed
-        ? params.name + ' (перевёрнута)'
-        : params.name;
+      runeName.textContent = params.reversed ? params.name + ' (перевёрнута)' : params.name;
       runeName.classList.add('visible');
     }, 900);
-
     setTimeout(() => {
       textBlock.classList.remove('placeholder');
       textBlock.textContent = params.text || 'Толкование не получено.';
-      repeatBtn.classList.add('visible');
+      recastBtn.classList.add('visible');
+      newBtn.classList.add('visible');
     }, 1600);
   });
 }
 
 window.addEventListener('DOMContentLoaded', () => {
-  const params = getParams();
-  setTimeout(() => runCasting(params), 600);
+  setTimeout(() => showResult(getParams()), 600);
 });
 
-repeatBtn.addEventListener('click', () => {
-  // TODO: раскомментировать вызов инвоиса Telegram Stars
-  // Telegram.WebApp.openInvoice(invoiceUrl, (status) => {
-  //   if (status === 'paid') runCasting(getParams());
-  // });
-
-  runCasting(getParams()); // временно — прямой перезапуск для тестирования
+recastBtn.addEventListener('click', async () => {
+  const tg = window.Telegram?.WebApp;
+  if (!tg?.initData) return;
+  const p = getParams();
+  if (!p.situation) return;
+  recastBtn.classList.add('loading');
+  try {
+    const res = await fetch(`${BACKEND}/cast`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ init_data: tg.initData, spread_type: p.spread, situation: p.situation }),
+    });
+    const data = await res.json();
+    if (!data.ok) { alert(data.error === 'no_coins' ? 'Недостаточно монет' : 'Ошибка'); return; }
+    const r = data.runes[0];
+    window.location.href = `${MINIAPP}/casting_single.html?rune=${encodeURIComponent(r.name_ru)}&reversed=${r.reversed?1:0}&text=${encodeURIComponent(data.text)}&situation=${encodeURIComponent(p.situation)}&spread=single`;
+  } catch(e) { alert('Ошибка соединения'); }
+  finally { recastBtn.classList.remove('loading'); }
 });
+
+newBtn.addEventListener('click', () => { window.location.href = 'index.html'; });
 </script>
 </body>
 </html>
