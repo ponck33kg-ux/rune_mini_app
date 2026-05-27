@@ -38,6 +38,18 @@ body {
   z-index: 2;
 }
 
+.back-btn {
+  position: absolute;
+  top: 16px; left: 16px;
+  z-index: 100;
+  width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 22px; color: #c9a227;
+  text-shadow: 0 0 12px rgba(201,162,39,0.8), 1px 1px 0 rgba(0,0,0,0.9), -1px -1px 0 rgba(0,0,0,0.9);
+  transition: transform 0.2s; text-decoration: none;
+}
+.back-btn:hover { transform: translateX(-3px); }
+
 .content {
   position: relative;
   z-index: 3;
@@ -62,12 +74,9 @@ body {
   letter-spacing: 3px;
   color: #c9a227;
   text-shadow: 
-    0 0 20px rgba(201,162,39,0.8), 
-    0 0 40px rgba(201,162,39,0.4),
-    1px 1px 0 rgba(0,0,0,0.9),
-    -1px -1px 0 rgba(0,0,0,0.9),
-    1px -1px 0 rgba(0,0,0,0.9),
-    -1px 1px 0 rgba(0,0,0,0.9);
+    0 0 20px rgba(201,162,39,0.8), 0 0 40px rgba(201,162,39,0.4),
+    1px 1px 0 rgba(0,0,0,0.9), -1px -1px 0 rgba(0,0,0,0.9),
+    1px -1px 0 rgba(0,0,0,0.9), -1px 1px 0 rgba(0,0,0,0.9);
   text-transform: uppercase;
   margin-bottom: 24px;
   text-align: center;
@@ -124,12 +133,6 @@ body {
 
 .cross-cell.empty { visibility: hidden; }
 
-.rune-slot {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
 .rune-pos-label {
   font-size: 11px;
   font-weight: 600;
@@ -139,10 +142,8 @@ body {
   margin-bottom: 5px;
   text-align: center;
   text-shadow:
-    1px 1px 0 rgba(0,0,0,0.95),
-    -1px -1px 0 rgba(0,0,0,0.95),
-    1px -1px 0 rgba(0,0,0,0.95),
-    -1px 1px 0 rgba(0,0,0,0.95),
+    1px 1px 0 rgba(0,0,0,0.95), -1px -1px 0 rgba(0,0,0,0.95),
+    1px -1px 0 rgba(0,0,0,0.95), -1px 1px 0 rgba(0,0,0,0.95),
     0 0 8px rgba(0,0,0,0.8);
 }
 
@@ -179,40 +180,32 @@ body {
   height: 72px;
   object-fit: contain;
   opacity: 0;
-  filter:
-    drop-shadow(0 0 12px rgba(201,162,39,0.9))
-    drop-shadow(0 0 26px rgba(201,162,39,0.4))
-    brightness(1.2);
+  filter: drop-shadow(0 0 12px rgba(201,162,39,0.9)) drop-shadow(0 0 26px rgba(201,162,39,0.4)) brightness(1.2);
   position: relative;
   z-index: 2;
 }
 
 .rune-img.appeared {
-  animation: rune-appear 1.4s cubic-bezier(0.16,1,0.3,1) forwards,
-             rune-levitate 4s 1.4s ease-in-out infinite;
+  animation: rune-appear 1.4s cubic-bezier(0.16,1,0.3,1) forwards, rune-levitate 4s 1.4s ease-in-out infinite;
 }
 
 .rune-img.reversed { transform: rotate(180deg); }
 .rune-img.reversed.appeared {
-  animation: rune-appear-rev 1.4s cubic-bezier(0.16,1,0.3,1) forwards,
-             rune-levitate-rev 4s 1.4s ease-in-out infinite;
+  animation: rune-appear-rev 1.4s cubic-bezier(0.16,1,0.3,1) forwards, rune-levitate-rev 4s 1.4s ease-in-out infinite;
 }
 
 @keyframes rune-appear {
   from { opacity: 0; transform: scale(0.6) translateY(16px); }
   to   { opacity: 1; transform: scale(1) translateY(0); }
 }
-
 @keyframes rune-appear-rev {
   from { opacity: 0; transform: scale(0.6) translateY(16px) rotate(180deg); }
   to   { opacity: 1; transform: scale(1) translateY(0) rotate(180deg); }
 }
-
 @keyframes rune-levitate {
   0%,100% { transform: translateY(0); }
   50%     { transform: translateY(-7px); }
 }
-
 @keyframes rune-levitate-rev {
   0%,100% { transform: rotate(180deg) translateY(0); }
   50%     { transform: rotate(180deg) translateY(-7px); }
@@ -238,7 +231,6 @@ body {
   opacity: 0;
   transition: opacity 0.8s ease;
 }
-
 .runes-names.visible { opacity: 1; }
 
 .rune-name-item {
@@ -249,11 +241,7 @@ body {
   text-transform: uppercase;
   text-align: center;
 }
-
-.rune-name-sep {
-  color: rgba(201,162,39,0.3);
-  font-size: 11px;
-}
+.rune-name-sep { color: rgba(201,162,39,0.3); font-size: 11px; }
 
 .text-block {
   width: 100%;
@@ -268,27 +256,7 @@ body {
   text-align: center;
   box-shadow: inset 0 0 20px rgba(201,162,39,0.05), 0 0 20px rgba(201,162,39,0.1);
 }
-
 .text-block.placeholder { color: rgba(255,255,255,0.25); font-style: italic; }
-
-.repeat-btn {
-  margin-top: 20px;
-  padding: 14px 40px;
-  background: rgba(201,162,39,0.15);
-  border: 1px solid rgba(201,162,39,0.6);
-  border-radius: 50px;
-  color: #c9a227;
-  font-size: 16px;
-  letter-spacing: 2px;
-  cursor: pointer;
-  font-family: 'Georgia', serif;
-  text-transform: uppercase;
-  transition: background 0.2s;
-  display: none;
-}
-
-.repeat-btn:hover { background: rgba(201,162,39,0.25); }
-.repeat-btn.visible { display: block; }
 
 .action-btns {
   display: flex; flex-direction: column; align-items: center;
@@ -312,6 +280,7 @@ body {
 <div class="screen">
   <div class="bg"></div>
   <div class="overlay"></div>
+  <a class="back-btn" href="index.html">←</a>
 
   <div class="content">
     <div class="top-section">
@@ -326,8 +295,6 @@ body {
 
     <div class="center-section">
       <div class="cross-layout">
-
-        <!-- Ряд 1: пусто, Верх (rune3), пусто -->
         <div class="cross-cell empty"></div>
         <div class="cross-cell">
           <div class="rune-pos-label">Потенциал</div>
@@ -338,7 +305,6 @@ body {
         </div>
         <div class="cross-cell empty"></div>
 
-        <!-- Ряд 2: Лево (rune2), Центр (rune1), Право (rune5) -->
         <div class="cross-cell">
           <div class="rune-pos-label">Прошлое</div>
           <div class="rune-reveal-wrap">
@@ -361,7 +327,6 @@ body {
           </div>
         </div>
 
-        <!-- Ряд 3: пусто, Низ (rune4), пусто -->
         <div class="cross-cell empty"></div>
         <div class="cross-cell">
           <div class="rune-pos-label">Препятствие</div>
@@ -371,7 +336,6 @@ body {
           </div>
         </div>
         <div class="cross-cell empty"></div>
-
       </div>
     </div>
 
@@ -418,8 +382,8 @@ const runeFileMap = {
 function getParams() {
   const p = new URLSearchParams(window.location.search);
   const runes = [1,2,3,4,5].map(i => ({
-    name: p.get(`rune${i}`) || '', reversed: p.get(`reversed${i}`) === '1',
-    file: runeFileMap[p.get(`rune${i}`) || ''] || null,
+    name: p.get('rune'+i) || '', reversed: p.get('reversed'+i) === '1',
+    file: runeFileMap[p.get('rune'+i) || ''] || null,
   }));
   return { runes, text: p.get('text') || '', situation: p.get('situation') || '', spread: 'five' };
 }
@@ -432,8 +396,8 @@ function showResult(params) {
   runesNames.classList.remove('visible');
   runesNames.innerHTML = '';
   [1,2,3,4,5].forEach(i => {
-    const img = document.getElementById(`rune-${i}`);
-    const glow = document.getElementById(`glow-${i}`);
+    const img = document.getElementById('rune-'+i);
+    const glow = document.getElementById('glow-'+i);
     img.classList.remove('appeared', 'reversed');
     img.style.opacity = '0';
     glow.classList.remove('active');
@@ -442,9 +406,9 @@ function showResult(params) {
     setTickerSpeed(4);
     params.runes.forEach((rune, idx) => {
       const i = idx + 1;
-      const img = document.getElementById(`rune-${i}`);
-      const glow = document.getElementById(`glow-${i}`);
-      img.src = rune.file ? `stones/${rune.file}.png` : 'stones/Fehu.png';
+      const img = document.getElementById('rune-'+i);
+      const glow = document.getElementById('glow-'+i);
+      img.src = rune.file ? 'stones/'+rune.file+'.png' : 'stones/Fehu.png';
       if (rune.reversed) img.classList.add('reversed');
       img.classList.add('appeared');
       setTimeout(() => glow.classList.add('active'), 600);
@@ -452,7 +416,7 @@ function showResult(params) {
     setTimeout(() => {
       runesNames.innerHTML = params.runes.map((r, idx) => {
         const label = r.reversed ? r.name + ' 🔄' : r.name;
-        return (idx > 0 ? '<span class="rune-name-sep"> · </span>' : '') + `<span class="rune-name-item">${label}</span>`;
+        return (idx > 0 ? '<span class="rune-name-sep"> · </span>' : '') + '<span class="rune-name-item">'+label+'</span>';
       }).join('');
       runesNames.classList.add('visible');
     }, 900);
@@ -468,122 +432,27 @@ function showResult(params) {
 window.addEventListener('DOMContentLoaded', () => { setTimeout(() => showResult(getParams()), 600); });
 
 recastBtn.addEventListener('click', async () => {
-  const tg = window.Telegram?.WebApp;
-  if (!tg?.initData) return;
+  const tg = window.Telegram && window.Telegram.WebApp;
+  if (!tg || !tg.initData) return;
   const p = getParams();
   if (!p.situation) return;
   recastBtn.classList.add('loading');
   try {
-    const res = await fetch(`${BACKEND}/cast`, {
+    const res = await fetch(BACKEND+'/cast', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ init_data: tg.initData, spread_type: 'five', situation: p.situation }),
     });
     const data = await res.json();
     if (!data.ok) { alert(data.error === 'no_coins' ? 'Недостаточно монет' : 'Ошибка'); return; }
-    const url = `${MINIAPP}/casting_five.html?` +
-      data.runes.map((r,i) => `rune${i+1}=${encodeURIComponent(r.name_ru)}&reversed${i+1}=${r.reversed?1:0}`).join('&') +
-      `&text=${encodeURIComponent(data.text)}&situation=${encodeURIComponent(p.situation)}&spread=five`;
+    const url = MINIAPP+'/casting_five.html?' +
+      data.runes.map((r,i) => 'rune'+(i+1)+'='+encodeURIComponent(r.name_ru)+'&reversed'+(i+1)+'='+(r.reversed?1:0)).join('&') +
+      '&text='+encodeURIComponent(data.text)+'&situation='+encodeURIComponent(p.situation)+'&spread=five';
     window.location.href = url;
   } catch(e) { alert('Ошибка соединения'); }
   finally { recastBtn.classList.remove('loading'); }
 });
 
 newBtn.addEventListener('click', () => { window.location.href = 'index.html'; });
-</script>
-</body>
-</html>
-
-function setTickerSpeed(s) { ticker.style.animationDuration = s + 's'; }
-
-function accelerate(cb) {
-  let speed = 4;
-  setTickerSpeed(speed);
-  let i = 0;
-  const interval = setInterval(() => {
-    i++;
-    speed = Math.max(0.25, speed * 0.8);
-    setTickerSpeed(speed);
-    if (i >= 22) { clearInterval(interval); cb(); }
-  }, 130);
-}
-
-const runeFileMap = {
-  'Феху':'Fehu','Уруз':'Uruz','Турисаз':'Thurisaz','Ансуз':'Ansuz',
-  'Райдо':'Raidho','Кано':'Kaunan','Гебо':'Gebo','Вуньо':'Wunjo',
-  'Хагалаз':'Hagalaz','Наутиз':'Nauthiz','Иса':'Isa','Йера':'Jera',
-  'Эйваз':'Eihwaz','Перт':'Perthro','Альгиз':'Algiz','Соулу':'Sowilo',
-  'Тейваз':'Tiwaz','Беркана':'Berkana','Эваз':'Ehwaz','Манназ':'Mannaz',
-  'Лагуз':'Laguz','Ингуз':'Ingwaz','Одал':'Othalan','Дагаз':'Dagaz'
-};
-
-function getParams() {
-  const p = new URLSearchParams(window.location.search);
-  const runes = [1,2,3,4,5].map(i => ({
-    name:     p.get(`rune${i}`) || '',
-    reversed: p.get(`reversed${i}`) === '1',
-    file:     runeFileMap[p.get(`rune${i}`) || ''] || null,
-  }));
-  const text = p.get('text') || '';
-  return { runes, text };
-}
-
-function runCasting(params) {
-  repeatBtn.classList.remove('visible');
-  textBlock.classList.add('placeholder');
-  textBlock.textContent = '...';
-  runesNames.classList.remove('visible');
-  runesNames.innerHTML = '';
-
-  [1,2,3,4,5].forEach(i => {
-    const img  = document.getElementById(`rune-${i}`);
-    const glow = document.getElementById(`glow-${i}`);
-    img.classList.remove('appeared', 'reversed');
-    img.style.opacity = '0';
-    glow.classList.remove('active');
-  });
-
-  accelerate(() => {
-    setTickerSpeed(4);
-
-    params.runes.forEach((rune, idx) => {
-      const i    = idx + 1;
-      const img  = document.getElementById(`rune-${i}`);
-      const glow = document.getElementById(`glow-${i}`);
-      img.src = rune.file ? `stones/${rune.file}.png` : 'stones/Fehu.png';
-      if (rune.reversed) img.classList.add('reversed');
-      img.classList.add('appeared');
-      setTimeout(() => glow.classList.add('active'), 600);
-    });
-
-    setTimeout(() => {
-      runesNames.innerHTML = params.runes.map((r, idx) => {
-        const label = r.reversed ? r.name + ' 🔄' : r.name;
-        return (idx > 0 ? '<span class="rune-name-sep"> · </span>' : '') +
-               `<span class="rune-name-item">${label}</span>`;
-      }).join('');
-      runesNames.classList.add('visible');
-    }, 900);
-
-    setTimeout(() => {
-      textBlock.classList.remove('placeholder');
-      textBlock.textContent = params.text || 'Толкование не получено.';
-      repeatBtn.classList.add('visible');
-    }, 1600);
-  });
-}
-
-window.addEventListener('DOMContentLoaded', () => {
-  const params = getParams();
-  setTimeout(() => runCasting(params), 600);
-});
-
-repeatBtn.addEventListener('click', () => {
-  // TODO: раскомментировать вызов инвоиса Telegram Stars
-  // Telegram.WebApp.openInvoice(invoiceUrl, (status) => {
-  //   if (status === 'paid') runCasting(getParams());
-  // });
-  runCasting(getParams());
-});
 </script>
 </body>
 </html>
