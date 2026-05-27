@@ -366,7 +366,7 @@ async function startSpread(type) {
         `&text=${encodeURIComponent(data.text)}`;
     }
 
-    tg.openLink(url);
+    window.location.href = url;
 
   } catch (e) {
     showToast('Ошибка соединения');
