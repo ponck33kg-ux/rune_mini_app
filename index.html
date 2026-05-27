@@ -366,7 +366,7 @@ async function startSpread(type) {
         `&text=${encodeURIComponent(data.text)}&situation=${encodeURIComponent(question)}&spread=five`;
     }
 
-    tg.openLink(url);
+    window.location.href = url;
 
   } catch (e) {
     showToast('Ошибка соединения');
