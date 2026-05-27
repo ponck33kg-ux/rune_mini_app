@@ -46,6 +46,17 @@ body {
   background: linear-gradient(to bottom, rgba(10,5,20,0.1) 0%, rgba(10,5,20,0.5) 60%, rgba(10,5,20,0.85) 100%);
   z-index: 2;
 }
+.back-btn {
+  position: absolute;
+  top: 16px; left: 16px;
+  z-index: 100;
+  width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 22px; color: #c9a227;
+  text-shadow: 0 0 12px rgba(201,162,39,0.8), 1px 1px 0 rgba(0,0,0,0.9), -1px -1px 0 rgba(0,0,0,0.9);
+  transition: transform 0.2s; text-decoration: none;
+}
+.back-btn:hover { transform: translateX(-3px); }
 
 .content {
   position: relative;
@@ -272,7 +283,7 @@ body {
   <div class="bg"></div>
   <div class="valkyrie"></div>
   <div class="overlay"></div>
-
+  <a class="back-btn" href="index.html">←</a>
   <div class="content">
     <div class="top-section">
       <div class="title">Искра Футарка</div>
