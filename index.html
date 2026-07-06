@@ -231,7 +231,7 @@
           <span class="spread-name">Искра Футарка</span>
           <span class="spread-desc">1 руна · мудрость предков</span>
         </div>
-        <span class="spread-price" id="single-price">бесплатно / 1 <img class="coin" src="https://raw.githubusercontent.com/ponck33kg-ux/rune_mini_app/main/coin.png" alt="монета"></span>
+        <span class="spread-price">1 <img class="coin" src="https://raw.githubusercontent.com/ponck33kg-ux/rune_mini_app/main/coin.png" alt="монета"></span>
       </button>
 
       <button class="spread-btn" id="btn-triple" onclick="startSpread('triple')">
@@ -239,7 +239,7 @@
           <span class="spread-name">Тень Иггдрасиль</span>
           <span class="spread-desc">3 руны · прошлое, настоящее, будущее</span>
         </div>
-        <span class="spread-price">3 <img class="coin" src="https://raw.githubusercontent.com/ponck33kg-ux/rune_mini_app/main/coin.png" alt="монета"></span>
+        <span class="spread-price" id="triple-price">бесплатно / 3 <img class="coin" src="https://raw.githubusercontent.com/ponck33kg-ux/rune_mini_app/main/coin.png" alt="монета"></span>
       </button>
 
       <button class="spread-btn" id="btn-five" onclick="startSpread('five')">
@@ -378,11 +378,11 @@ async function startSpread(type) {
 const urlParams = new URLSearchParams(window.location.search);
 const freeAvailable = urlParams.get('free') === '1';
 function updateFreeLabel() {
-  const priceEl = document.getElementById('single-price');
+  const priceEl = document.getElementById('triple-price');
   if (priceEl) {
     priceEl.innerHTML = freeAvailable
-      ? 'бесплатно / 1 <img class="coin" src="https://raw.githubusercontent.com/ponck33kg-ux/rune_mini_app/main/coin.png" alt="монета">'
-      : '1 <img class="coin" src="https://raw.githubusercontent.com/ponck33kg-ux/rune_mini_app/main/coin.png" alt="монета">';
+      ? 'бесплатно / 3 <img class="coin" src="https://raw.githubusercontent.com/ponck33kg-ux/rune_mini_app/main/coin.png" alt="монета">'
+      : '3 <img class="coin" src="https://raw.githubusercontent.com/ponck33kg-ux/rune_mini_app/main/coin.png" alt="монета">';
   }
 }
 updateFreeLabel();
